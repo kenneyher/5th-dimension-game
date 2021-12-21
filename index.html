@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+
+<head>
+  <title>The 5th Dimension</title>
+  <meta charset="utf-8">
+  <style>
+    @font-face {
+      font-family: "square";
+      src: url('Squarebit2Px.ttf');
+    }
+		body {
+      font-family: 'square';
+      color:white;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+			width: 100%;
+			height: 100%;
+    }
+    canvas{
+      margin: 1rem;
+      display:block;
+      overflow: hidden;
+    }
+    div#screen{
+      background: content-box #432D55;
+      border-radius: 5px;
+      width: 80%;
+      margin: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      scroll-behavior:smooth; 
+    }
+    p{
+      margin: 1rem;
+    }
+  </style>
+  <script src="https://unpkg.com/kaboom/dist/kaboom.js"></script>
+</head>
+<body bgcolor="#21162a">
+  <div id="screen">
+    <h1 style="color: white;">THE 5TH DIMENSION</h1>
+    <canvas id='kaboom'></canvas>
+    <script>
+      kaboom({
+        width: 840,
+        height: 450,
+        canvas: document.getElementById('kaboom'),
+        background: [0,0,0],
+        font: "monogram",
+        crisp: true,
+      });
+      loadSprite("ship-d", "assets/sprites/ship-default.png");
+      loadFont("monogram", "assets/sprites/monogram.png", 7, 7, {chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'});
+    </script>
+    <script src="game.js"></script>
+    <p>The 5th dimension is a game in progress that uses the kaboom.js library.</p>
+  </div>
+</body>
