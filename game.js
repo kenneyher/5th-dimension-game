@@ -6,6 +6,7 @@
 |                             COMPONENTS AND FUNCTIONS                                ||                                                                                     |
 |-------------------------------------------------------------------------------------|
 */
+
 function spawner(type){
   if(type == "hand"){
     add([sprite("hand"), scale(3), area({scale: 0.6}), origin("center"), pos(width(), randi(0, height())), "hand", "enemy", {health: 2, speedX: -180, speedY: 0,}]);
@@ -27,6 +28,7 @@ function addText(t, s){
     }),
     origin("center"),
     pos(width()/2, height()/2),
+    z(100)
   ])
 }
 
@@ -69,7 +71,7 @@ scene("home", () => {
 })
 
 scene("intro", (s) => {
-  const intro = "SUDDENLY, YOU OPEN YOUR EYES. YOU ARE IN A CAPSULE. ALL YOU SEE IS BLACK, YOU START TO REMEMBER HOW DID YOU GET HERE: YOU WERE IN A WHITE ROOM WITH SCIENTISTS, THEY TOLD YOU THAT YOU WILL GO TO THE 5TH DIMENSION. YOU START TO HEAR ROARINGS AND SIGHS. YOU PREPARE YOU GUNS AND YOU TURN ON THE CAPSULE TO GET INTO THIS NEW WORLD."
+  const intro = "SUDDENLY, YOU OPEN YOUR EYES. YOU ARE IN A CAPSULE. ALL YOU SEE IS BLACK, YOU START TO REMEMBER HOW DID YOU GET HERE YOU WERE IN A WHITE ROOM WITH SCIENTISTS, THEY TOLD YOU THAT YOU WILL GO TO THE 5TH DIMENSION. YOU START TO HEAR ROARINGS AND SIGHS. YOU PREPARE YOUR GUNS AND YOU TURN ON THE CAPSULE TO GET INTO THIS NEW DIMENSION."
   addText(intro, 20);
   onKeyPress("enter", () => {
     go(s);
@@ -122,7 +124,9 @@ scene("play", (l) => {
   let deathCounter = 0;
   if(l == 1){
     ENEMY_TYPES.push("hand", "eye");
-    limit = 20;
+    limit = 2;
+  }else if(l == 2){
+    addText("please stand by", 30);
   }
   loop(2, () => {
     spawner(choose(ENEMY_TYPES));
@@ -188,8 +192,11 @@ scene("play", (l) => {
 })
 
 scene("ending", (idx) => {
-  const ENDINGS = ['WORKING ON THIS PART - PLEASE STAND BY :)'];
-  addText(ENDINGS[idx - 1]);
+  const ENDINGS = ['THOSE THINGS... WERE NOT NORMAL, THE HAVE STRANGE SHAPES AND THEY SAME DANGEROUS. WHATEVER THOSE THINGS WERE YOU KNEW THEY ERE NOT FRIENDLY. AFTER A BIT FLOATING IN THE IMMENSE BLACK SPACE, YOU START TO SEE LIGHTS. BEAUTIFUL LIGHTS WITH DIFERENT COLORS. YOU ARE STUNNED BY THE BEAUTY OF THIS PLACE. BUT THEN, MORE MONSTERS STARTTED TO APPEAR.'];
+  addText(ENDINGS[idx - 1], 30);
+  onKeyPress("enter", () => {
+    go("levels");
+  })
 })
 
 go("home");
