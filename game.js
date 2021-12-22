@@ -3,15 +3,45 @@
 /*
 |-------------------------------------------------------------------------------------|
 |                                                                                     |
-|                                      COMPONENTS                                     ||                                                                                     |
+|                             COMPONENTS AND FUNCTIONS                                ||                                                                                     |
 |-------------------------------------------------------------------------------------|
 */
 function spawner(type){
   if(type == "hand"){
-    add([sprite("hand"), scale(2), area({scale: 0.6}), origin("center"), pos(width(), randi(0, height())), "hand", "enemy", {health: 5, speedX: -180, speedY: 0,}]);
+    add([sprite("hand"), scale(3), area({scale: 0.6}), origin("center"), pos(width(), randi(0, height())), "hand", "enemy", {health: 2, speedX: -180, speedY: 0,}]);
   }else if(type == "eye"){
-    add([sprite("eye"), scale(2), area({scale: 0.6}), origin("center"), pos(randi(width()/2, width()), 0), "eye", "enemy", {health: 8, speedX: -150, speedY: 80,}]);
+    add([sprite("eye"), scale(3), area({scale: 0.6}), origin("center"), pos(randi(width()/2, width()), 0), "eye", "enemy", {health: 4, speedX: -150, speedY: 80,}]);
   }
+}
+
+function addText(t, s){
+  add([
+    text(t, {
+      size: s, 
+      width: width(),
+      transform: (idx, ch) => ({
+        pos: vec2(0, wave(-2, 2, time() * 1.5 + idx * 0.5)),
+        scale: wave(1, 1.2, time() * 2 + idx),
+        // angle: wave(-9, 9, time() * 3 + idx),
+      }),
+    }),
+    origin("center"),
+    pos(width()/2, height()/2),
+  ])
+}
+
+function kaboom(p, s){
+  play("explo", {volume: 0.7});
+  const ex = add([
+    sprite("explosion", {anim: "explode"}),
+    pos(p),
+    scale(s),
+    z(50),
+    origin("center"),
+  ])
+  ex.onAnimEnd("explode", () => {
+    destroy(ex);
+  })
 }
 
 scene("home", () => {
@@ -34,7 +64,15 @@ scene("home", () => {
   })
 
   get("bar-s")[0].onClick(() => {
-    go("levels");
+    go("intro", "levels");
+  })
+})
+
+scene("intro", (s) => {
+  const intro = "SUDDENLY, YOU OPEN YOUR EYES. YOU ARE IN A CAPSULE. ALL YOU SEE IS BLACK, YOU START TO REMEMBER HOW DID YOU GET HERE: YOU WERE IN A WHITE ROOM WITH SCIENTISTS, THEY TOLD YOU THAT YOU WILL GO TO THE 5TH DIMENSION. YOU START TO HEAR ROARINGS AND SIGHS. YOU PREPARE YOU GUNS AND YOU TURN ON THE CAPSULE TO GET INTO THIS NEW WORLD."
+  addText(intro, 20);
+  onKeyPress("enter", () => {
+    go(s);
   })
 })
 
@@ -80,18 +118,27 @@ scene("levels", () => {
 
 scene("play", (l) => {
   const ENEMY_TYPES = [];
+  let limit;
+  let deathCounter = 0;
   if(l == 1){
     ENEMY_TYPES.push("hand", "eye");
+    limit = 20;
   }
   loop(2, () => {
-    spawner(choose(ENEMY_TYPES))
+    spawner(choose(ENEMY_TYPES));
   })
   onCollide("enemy", "bullet", (e, b) => {
+    play(choose(["e-hurt-1","e-hurt-2","e-hurt-3", "e-hurt-4"]), {volume: 0.6, speed: 2.5})
     e.health -= 1;
     destroy(b);
   })
   onUpdate("enemy", (e) => {
     if(e.health < 1){
+      kaboom(e.pos, 5);
+      destroy(e);
+      deathCounter++;
+    }
+    if(e.pos.x < 0 || e.pos.y > height() + 20){
       destroy(e);
     }
     e.move(e.speedX, e.speedY);
@@ -127,8 +174,22 @@ scene("play", (l) => {
   })
 
   onUpdate('bullet', (b) => {
-    b.move(350, 0)
+    b.move(350, 0);
+    if(b.pos.x > width()){
+      destroy(b);
+    }
   })
+
+  onUpdate(() => {
+    if(deathCounter > limit){
+      go("ending", l);
+    }
+  })
+})
+
+scene("ending", (idx) => {
+  const ENDINGS = ['WORKING ON THIS PART - PLEASE STAND BY :)'];
+  addText(ENDINGS[idx - 1]);
 })
 
 go("home");

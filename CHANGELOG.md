@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 # 2021-12-21
 ## Added
 - 2 types of enemies: *the hand* and *the eye*.
-- The game mechanic (shooting, movement).
-- A sketch of the first level
+- Some of the game mechanics (shooting, movement).
+- A sketch of the first level.
+- Explosions when the enemy dies.
+- Some sounds
+- The Intro for the story mode
+- A sketch for endings
 - Buttoooonnsss!!
