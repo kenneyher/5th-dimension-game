@@ -3,17 +3,27 @@
 /*
 |-------------------------------------------------------------------------------------|
 |                                                                                     |
+|                                     CONSTANTS                                       |
+|                                                                                     |
+|-------------------------------------------------------------------------------------|
+*/
+
+const LAYERS = ["bg", "game", "fx", "ui"];
+
+/*
+|-------------------------------------------------------------------------------------|
+|                                                                                     |
 |                             COMPONENTS AND FUNCTIONS                                ||                                                                                     |
 |-------------------------------------------------------------------------------------|
 */
 
 function spawner(type){
   if(type == "hand"){
-    add([sprite("hand"), scale(3), area({scale: 0.6}), origin("center"), pos(width(), randi(0, height())), "hand", "enemy", {health: 2, speedX: -180, speedY: 0,}]);
+    add([sprite("hand"), layer("game"), scale(3), area({scale: 0.6}), origin("center"), pos(width(), randi(40, height() - 40)), "hand", "enemy", {health: 2,speedX: -180, speedY: 0,}]);
   }else if(type == "eye"){
-    add([sprite("eye"), scale(3), area({scale: 0.6}), origin("center"), pos(randi(width()/2, width()), 0), "eye", "enemy", {health: 4, speedX: -150, speedY: 80,}]);
+    add([sprite("eye"), layer("game"), scale(3), area({scale: 0.6}), origin("center"), pos(randi(width()/2, width()), 0), "eye", "enemy", {health: 4, speedX: -150, speedY: 80,}]);
   }else if(type == "ghost"){
-    add([sprite("eye"), scale(3), area({scale: 0.6}), origin("center"), pos(width(), randi(0, height())), "ghost", "enemy", {health: 8, speedX: -150, speedY: 0,}]);
+    add([sprite("ghost"), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(0, height()) - 40), "ghost", "enemy", {health: 8,speedX: -150, speedY: wave(-50, 50, time() * 2), t: 0}]);
   }
 }
 
@@ -27,8 +37,8 @@ function createEffects(type){
         opacity(rand(0.1, 1)),
         color(randi(0, 255), randi(0, 255), randi(0, 255)),
         lifespan(randi(0, 3), {fade: rand(1, 2)}),
+        layer("bg"),
         z(1),
-        "star",
       ])
     })
   }
@@ -51,6 +61,23 @@ function addText(t, s){
   ])
 }
 
+const spawnBullet = (type, p) => {
+  if(type == "g"){
+    add([
+      sprite('g-bullet'),
+      scale(3),
+      area({width: 10, height: 8, }),
+      origin('center'),
+      cleanup(),
+      pos(p),
+      move(LEFT, 260),
+      "e-bullet",
+      layer("fx"),
+    ])
+  }
+
+}
+
 function kaboom(p, s){
   play("explo", {volume: 0.7});
   const ex = add([
@@ -58,6 +85,7 @@ function kaboom(p, s){
     pos(p),
     scale(s),
     z(50),
+    layer("fx"),
     origin("center"),
   ])
   ex.onAnimEnd("explode", () => {
@@ -139,6 +167,7 @@ scene("levels", () => {
 })
 
 scene("play", (l) => {
+  layers(LAYERS);
   // debug.log(l);
   const ENEMY_TYPES = [];
   let limit;
@@ -151,12 +180,30 @@ scene("play", (l) => {
     limit = 25;
     createEffects("lights");
   }
-  loop(2, () => {
+
+  const deathIcon = add([
+    sprite("skull"),
+    scale(2),
+    pos(width() - 100, 25),
+    layer('ui'),
+    origin("center")
+  ])
+  const deathLabel = add([
+    text(`${deathCounter}`, {size: 20}),
+    pos({x: deathIcon.pos.x + 40, y: deathIcon.pos.y}),
+    layer('ui'),
+    origin("center"),
+  ])
+  deathLabel.onUpdate(() => {
+    deathLabel.text = `${deathCounter}`;
+  })
+
+  loop(1, () => {
     spawner(choose(ENEMY_TYPES));
   })
   onCollide("enemy", "bullet", (e, b) => {
     play(choose(["e-hurt-1","e-hurt-2","e-hurt-3", "e-hurt-4"]), {volume: 0.4, speed: 1.5})
-    e.health -= 1;
+    e.health -= b.dmg;
     destroy(b);
   })
   onUpdate("enemy", (e) => {
@@ -168,6 +215,14 @@ scene("play", (l) => {
     if(e.pos.x < 0 || e.pos.y > height() + 20){
       destroy(e);
     }
+    if(e.is("ghost")){
+      e.speedY = wave(-80, 80, time() * 1.5);
+      e.t += dt();
+      if(e.t > 1.5){
+        spawnBullet('g', e.pos);
+        e.t = 0;
+      }
+    }
     e.move(e.speedX, e.speedY);
   })
 
@@ -176,8 +231,10 @@ scene("play", (l) => {
     scale(3),
     area({scale: 0.6}),
     origin("center"),
+    health(3),
     pos(40, height()/2),
     rotate(0),
+    layer("game"),
     {
       bulletColor: rgb(255, 255, 255),
     }
@@ -192,14 +249,31 @@ scene("play", (l) => {
       "bullet",
       color(ship.bulletColor),
       cleanup(),
+      health(4),
+      layer("fx"),
+      {
+        dmg: 1,
+      }
     ])
-    play("laser", {volume: 0.05});
+    play("laser", {volume: 0.1});
+  })
+
+  ship.onDeath(() => {
+    kaboom(ship.pos, 5);
+    ship.destroy();
+    wait(1, () => go("game over"))
   })
 
   ship.onCollide("enemy", (e) => {
     kaboom(ship.pos, 5);
     ship.destroy();
     wait(1, () => go("game over"))
+  })
+  ship.onCollide("e-bullet", (b) => {
+    destroy(b);
+    ship.hurt(1);
+    play("hurt", {volume: 0.7})
+    shake(25);
   })
 
   onKeyDown('up', () => {

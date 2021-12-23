@@ -4,9 +4,19 @@ All notable changes will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-# THE GAME IS IN PROGRESS NO UPDATES SO FAR
+# [UNRELEASED]
 
-# CHANGELOG FOR THE CREATING PROGRESS
+## 2021-12-23
+### Added
+- A death counter
+- A new type of enemy: *ghostface*.
+- Enemies that can shoot.
+- Game over screen.
+- A sketch for the second level.
+- Level 1 ending.
+### Changed 
+- Gave other style for the intro and ending text style.
+- Some sounds.
 ## 2021-12-21
 ### Added
 - 2 types of enemies: *the hand* and *the eye*.
