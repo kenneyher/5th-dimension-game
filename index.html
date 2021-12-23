@@ -61,13 +61,16 @@
           explode: {from: 0, to: 6}
         }
       })
-      loadSprite("skull", "assets/sprites/skull.png.png")
+      loadSprite("skull", "assets/sprites/skull.png.png");
+      loadSprite("ghost", "assets/sprites/ghostface.png");
+      loadSprite("g-bullet", "assets/sprites/ghost-bullet.png");
       loadFont("monogram", "assets/sprites/monogram.png", 7, 9, {chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'});
       loadSound("e-hurt-1", "assets/sounds/e-hurt-1.wav");
       loadSound("e-hurt-2", "assets/sounds/e-hurt-2.wav");
       loadSound("e-hurt-3", "assets/sounds/e-hurt-3.wav");
       loadSound("e-hurt-4", "assets/sounds/e-hurt-4.wav");
-      loadSound("explo", "assets/sounds/explo.wav")
+      loadSound("explo", "assets/sounds/explo.wav");
+      loadSound("laser", "assets/sounds/shoot.wav")
     </script>
     <script src="game.js"></script>
     <p>The 5th dimension is a game in progress that uses the kaboom.js library. The 5th Dimension is a shooter game. Yo play as the main character is a pilot that works for a secret company that explores and investigates the universe. Right now the first level is available (but it is just a test), if you are interested you can play it.</p>

@@ -12,6 +12,25 @@ function spawner(type){
     add([sprite("hand"), scale(3), area({scale: 0.6}), origin("center"), pos(width(), randi(0, height())), "hand", "enemy", {health: 2, speedX: -180, speedY: 0,}]);
   }else if(type == "eye"){
     add([sprite("eye"), scale(3), area({scale: 0.6}), origin("center"), pos(randi(width()/2, width()), 0), "eye", "enemy", {health: 4, speedX: -150, speedY: 80,}]);
+  }else if(type == "ghost"){
+    add([sprite("eye"), scale(3), area({scale: 0.6}), origin("center"), pos(width(), randi(0, height())), "ghost", "enemy", {health: 8, speedX: -150, speedY: 0,}]);
+  }
+}
+
+function createEffects(type){
+  if(type == "lights"){
+    loop(0.2, () => {
+      add([
+        rect(5, 5),
+        pos(randi(0, width()), randi(0, height())),
+        scale(randi(1, 4)),
+        opacity(rand(0.1, 1)),
+        color(randi(0, 255), randi(0, 255), randi(0, 255)),
+        lifespan(randi(0, 3), {fade: rand(1, 2)}),
+        z(1),
+        "star",
+      ])
+    })
   }
 }
 
@@ -107,6 +126,7 @@ scene("levels", () => {
     b.onHover(() => {
       get("level text")[b.level  > 0 ? b.level - 1 : b.level].scale = 1.1;
       b.scale = 1.1
+      // debug.log(b.level)
     }, () => {
       get("level text")[b.level  > 0 ? b.level - 1 : b.level].scale = 1;
       b.scale = 1;
@@ -119,20 +139,23 @@ scene("levels", () => {
 })
 
 scene("play", (l) => {
+  // debug.log(l);
   const ENEMY_TYPES = [];
   let limit;
   let deathCounter = 0;
   if(l == 1){
     ENEMY_TYPES.push("hand", "eye");
-    limit = 2;
+    limit = 20;
   }else if(l == 2){
-    addText("please stand by", 30);
+    ENEMY_TYPES.push("hand", "eye", "ghost");
+    limit = 25;
+    createEffects("lights");
   }
   loop(2, () => {
     spawner(choose(ENEMY_TYPES));
   })
   onCollide("enemy", "bullet", (e, b) => {
-    play(choose(["e-hurt-1","e-hurt-2","e-hurt-3", "e-hurt-4"]), {volume: 0.6, speed: 2.5})
+    play(choose(["e-hurt-1","e-hurt-2","e-hurt-3", "e-hurt-4"]), {volume: 0.4, speed: 1.5})
     e.health -= 1;
     destroy(b);
   })
@@ -167,9 +190,18 @@ scene("play", (l) => {
       origin("center"),
       pos(ship.pos),
       "bullet",
-      color(ship.bulletColor)
+      color(ship.bulletColor),
+      cleanup(),
     ])
+    play("laser", {volume: 0.05});
   })
+
+  ship.onCollide("enemy", (e) => {
+    kaboom(ship.pos, 5);
+    ship.destroy();
+    wait(1, () => go("game over"))
+  })
+
   onKeyDown('up', () => {
     ship.move(0, -160)
   })
@@ -192,8 +224,22 @@ scene("play", (l) => {
 })
 
 scene("ending", (idx) => {
-  const ENDINGS = ['THOSE THINGS... WERE NOT NORMAL, THE HAVE STRANGE SHAPES AND THEY SAME DANGEROUS. WHATEVER THOSE THINGS WERE YOU KNEW THEY ERE NOT FRIENDLY. AFTER A BIT FLOATING IN THE IMMENSE BLACK SPACE, YOU START TO SEE LIGHTS. BEAUTIFUL LIGHTS WITH DIFERENT COLORS. YOU ARE STUNNED BY THE BEAUTY OF THIS PLACE. BUT THEN, MORE MONSTERS STARTTED TO APPEAR.'];
-  addText(ENDINGS[idx - 1], 30);
+  const ENDINGS = ['THOSE THINGS WERE NOT NORMAL, THEY HAD STRANGE SHAPES AND THEY SEEMED DANGEROUS. WHATEVER THOSE THINGS WERE YOU KNEW THEY ERE NOT FRIENDLY. AFTER A BIT FLOATING IN THE IMMENSE BLACK SPACE, YOU START TO SEE LIGHTS. BEAUTIFUL LIGHTS WITH DIFERENT COLORS. YOU ARE STUNNED BY THE BEAUTY OF THIS PLACE. BUT THEN, MORE MONSTERS STARTTED TO APPEAR.'];
+  addText(ENDINGS[idx - 1], 20);
+  onKeyPress("enter", () => {
+    go("levels");
+  })
+})
+
+scene("game over", () => {
+  const GAME_OVER_TEXTS = ['THE MONSTERS TOOK ALL THAT WAS IN YOUR SHIP, EVEN YOUR BODY', 'THEY LEFT YOUR BODY IN THERE. ALONE. IN THE ENDLESS BLACK SPACE', 'THE MONSTERS ATE EVERYTHING IN YOUR CAPSULE. EVEN YOUR DEAD BODY'];
+  addText(GAME_OVER_TEXTS[randi(0, GAME_OVER_TEXTS.length)], 20);
+  add([
+    text("GAME OVER", {size: 30}),
+    pos(width()/2, height()/3),
+    origin("center"),
+    color(RED),
+  ])
   onKeyPress("enter", () => {
     go("levels");
   })
