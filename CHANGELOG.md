@@ -8,8 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 2021-12-23
 ### Added
-- A death counter
-- A new type of enemy: *ghostface*.
+- A sketch for level 3.
+- A life icon.
+- A death counter.
+- 2 new types of enemies: *ghostface* and *virus*.
 - Enemies that can shoot.
 - Game over screen.
 - A sketch for the second level.
@@ -17,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed 
 - Gave other style for the intro and ending text style.
 - Some sounds.
+- Enemies appear more often.
 ## 2021-12-21
 ### Added
 - 2 types of enemies: *the hand* and *the eye*.

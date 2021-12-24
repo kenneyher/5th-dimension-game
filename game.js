@@ -9,6 +9,7 @@
 */
 
 const LAYERS = ["bg", "game", "fx", "ui"];
+const LEVELS_MUSIC = ["theme1", "theme2", "theme3"];
 
 /*
 |-------------------------------------------------------------------------------------|
@@ -23,7 +24,9 @@ function spawner(type){
   }else if(type == "eye"){
     add([sprite("eye"), layer("game"), scale(3), area({scale: 0.6}), origin("center"), pos(randi(width()/2, width()), 0), "eye", "enemy", {health: 4, speedX: -150, speedY: 80,}]);
   }else if(type == "ghost"){
-    add([sprite("ghost"), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(0, height()) - 40), "ghost", "enemy", {health: 8,speedX: -150, speedY: wave(-50, 50, time() * 2), t: 0}]);
+    add([sprite("ghost"), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(140, height()) - 140), "ghost", "enemy", {health: 8,speedX: -150, speedY: wave(-50, 50, time() * 2), t: 0}]);
+  }else if(type == "virus"){
+    add([sprite("virus"), layer("game"), rotate(-90), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(100, height()) - 100), "virus", "enemy", {health: 12,speedX: -150, speedY: Math.ceil(wave(-50, 50, time() * 2)), t: 0}]);
   }
 }
 
@@ -61,7 +64,7 @@ function addText(t, s){
   ])
 }
 
-const spawnBullet = (type, p) => {
+const spawnBullet = (type, p, vel) => {
   if(type == "g"){
     add([
       sprite('g-bullet'),
@@ -70,12 +73,23 @@ const spawnBullet = (type, p) => {
       origin('center'),
       cleanup(),
       pos(p),
-      move(LEFT, 260),
+      move(vel, 260),
+      "e-bullet",
+      layer("fx"),
+    ])
+  }else if(type == "v"){
+    add([
+      sprite('v-bullet'),
+      scale(3),
+      area({width: 10, height: 8, }),
+      origin('center'),
+      cleanup(),
+      pos(p),
+      move(vel, 260),
       "e-bullet",
       layer("fx"),
     ])
   }
-
 }
 
 function kaboom(p, s){
@@ -167,6 +181,7 @@ scene("levels", () => {
 })
 
 scene("play", (l) => {
+  const music = play(LEVELS_MUSIC[l - 1], {loop: true, volume: 0.4});
   layers(LAYERS);
   // debug.log(l);
   const ENEMY_TYPES = [];
@@ -179,6 +194,9 @@ scene("play", (l) => {
     ENEMY_TYPES.push("hand", "eye", "ghost");
     limit = 25;
     createEffects("lights");
+  }else if(l == 3){
+    ENEMY_TYPES.push("hand", "eye", "ghost", "virus");
+    limit = 20;
   }
 
   const deathIcon = add([
@@ -219,7 +237,17 @@ scene("play", (l) => {
       e.speedY = wave(-80, 80, time() * 1.5);
       e.t += dt();
       if(e.t > 1.5){
-        spawnBullet('g', e.pos);
+        spawnBullet('g', e.pos, LEFT);
+        e.t = 0;
+      }
+    }
+    if(e.is("virus")){
+      e.speedY = Math.ceil(wave(-50, 50, time() * 2))
+      e.t += dt();
+      if(e.t > 1.5){
+        spawnBullet('v', e.pos, vec2(-100, 60));
+        spawnBullet('v', e.pos, vec2(-100, -60));
+        spawnBullet('v', e.pos, vec2(-100, 0));
         e.t = 0;
       }
     }
@@ -231,13 +259,20 @@ scene("play", (l) => {
     scale(3),
     area({scale: 0.6}),
     origin("center"),
-    health(3),
+    health(4),
     pos(40, height()/2),
-    rotate(0),
     layer("game"),
     {
       bulletColor: rgb(255, 255, 255),
     }
+  ])
+
+  const healthLabel = add([
+    sprite("heart", {frame: 0}),
+    scale(3),
+    pos(width() - 180, 30),
+    origin("center"),
+    layer('ui'),
   ])
 
   onKeyPress("space", () => {
@@ -249,7 +284,6 @@ scene("play", (l) => {
       "bullet",
       color(ship.bulletColor),
       cleanup(),
-      health(4),
       layer("fx"),
       {
         dmg: 1,
@@ -259,20 +293,25 @@ scene("play", (l) => {
   })
 
   ship.onDeath(() => {
+    music.stop();
     kaboom(ship.pos, 5);
     ship.destroy();
-    wait(1, () => go("game over"))
+    healthLabel.frame = 4;
+    wait(1, () => go("game over"));
   })
 
   ship.onCollide("enemy", (e) => {
     kaboom(ship.pos, 5);
     ship.destroy();
+    healthLabel.frame = 4;
     wait(1, () => go("game over"))
+    music.stop();
   })
   ship.onCollide("e-bullet", (b) => {
+    healthLabel.frame += 1;
     destroy(b);
-    ship.hurt(1);
-    play("hurt", {volume: 0.7})
+    ship.hurt();
+    play("hurt", {volume: 0.7});
     shake(25);
   })
 
@@ -292,13 +331,14 @@ scene("play", (l) => {
 
   onUpdate(() => {
     if(deathCounter > limit){
+      music.stop();
       go("ending", l);
     }
   })
 })
 
 scene("ending", (idx) => {
-  const ENDINGS = ['THOSE THINGS WERE NOT NORMAL, THEY HAD STRANGE SHAPES AND THEY SEEMED DANGEROUS. WHATEVER THOSE THINGS WERE YOU KNEW THEY ERE NOT FRIENDLY. AFTER A BIT FLOATING IN THE IMMENSE BLACK SPACE, YOU START TO SEE LIGHTS. BEAUTIFUL LIGHTS WITH DIFERENT COLORS. YOU ARE STUNNED BY THE BEAUTY OF THIS PLACE. BUT THEN, MORE MONSTERS STARTTED TO APPEAR.'];
+  const ENDINGS = ['THOSE THINGS WERE NOT NORMAL, THEY HAD STRANGE SHAPES AND THEY SEEMED DANGEROUS. WHATEVER THOSE THINGS WERE YOU KNEW THEY ERE NOT FRIENDLY. AFTER A BIT FLOATING IN THE IMMENSE BLACK SPACE, YOU START TO SEE LIGHTS. BEAUTIFUL LIGHTS WITH DIFERENT COLORS. YOU ARE STUNNED BY THE BEAUTY OF THIS PLACE. BUT THEN, MORE MONSTERS STARTTED TO APPEAR.', 'DONT KNOW WHAT PUT HERE '];
   addText(ENDINGS[idx - 1], 20);
   onKeyPress("enter", () => {
     go("levels");
@@ -306,7 +346,7 @@ scene("ending", (idx) => {
 })
 
 scene("game over", () => {
-  const GAME_OVER_TEXTS = ['THE MONSTERS TOOK ALL THAT WAS IN YOUR SHIP, EVEN YOUR BODY', 'THEY LEFT YOUR BODY IN THERE. ALONE. IN THE ENDLESS BLACK SPACE', 'THE MONSTERS ATE EVERYTHING IN YOUR CAPSULE. EVEN YOUR DEAD BODY'];
+  const GAME_OVER_TEXTS = ['THE MONSTERS TOOK ALL THAT WAS IN YOUR SHIP, EVEN DEATH YOUR BODY', 'THEY LEFT YOUR BODY IN THERE. ALONE. IN THE ENDLESS BLACK SPACE', 'THE MONSTERS ATE EVERYTHING IN YOUR CAPSULE. EVEN YOUR DEAD BODY', 'YOU SEE THOSE THINGS CLOSER, THEY KEPT COMING, ALL OF THEM. THEY CAME TO EAT A SNACK'];
   addText(GAME_OVER_TEXTS[randi(0, GAME_OVER_TEXTS.length)], 20);
   add([
     text("GAME OVER", {size: 30}),
