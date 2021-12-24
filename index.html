@@ -9,18 +9,21 @@
       src: url('Squarebit2Px.ttf');
     }
 		body {
+      font-size: 1.3rem;
       font-family: 'square';
       color:white;
-      display: flex;
       justify-content: center;
+      display: flex;
       align-items: flex-start;
 			width: 100%;
 			height: 100%;
     }
+
     canvas{
-      margin: 1rem;
+      margin: 1rem, 1rem;
       display:block;
       overflow: hidden;
+      align-self: center;
     }
     div#screen{
       background: content-box #432D55;
@@ -29,10 +32,15 @@
       margin: 1rem;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      /* align-items: center; */
       scroll-behavior:smooth; 
     }
-    p{
+    div > p{
+      /* display: flex; */
+      justify-self: flex-start;
+      margin: 1rem;
+    }
+    h3{
       margin: 1rem;
     }
   </style>
@@ -40,7 +48,7 @@
 </head>
 <body bgcolor="#21162a">
   <div id="screen">
-    <h1 style="color: white;">THE 5TH DIMENSION</h1>
+    <h1 style="color: white; align-self: center;">THE 5TH DIMENSION</h1>
     <canvas id='kaboom'></canvas>
     <script>
       kaboom({
@@ -61,6 +69,13 @@
           explode: {from: 0, to: 6}
         }
       })
+      loadSprite("hole", "assets/sprites/hole.png", {
+        sliceX: 15,
+        sliceY: 1,
+        anims: {
+          idle: {from: 0, to: 13, loop: true}
+        }
+      })
       loadSprite("heart", "assets/sprites/heart.png", {
         sliceX: 5,
         sliceY: 1,
@@ -70,8 +85,9 @@
       loadSprite("virus", "assets/sprites/virus.png");
       loadSprite("g-bullet", "assets/sprites/ghost-bullet.png");
       loadSprite("v-bullet", "assets/sprites/virus-bullet.png");
+      loadSprite("logo", "assets/sprites/logo.png");
       
-      loadFont("monogram", "assets/sprites/monogram.png", 7, 9, {chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'});
+      loadFont("monogram", "assets/sprites/monogram.png", 7, 9, {chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,'});
 
       loadSound("e-hurt-1", "assets/sounds/e-hurt-1.wav");
       loadSound("e-hurt-2", "assets/sounds/e-hurt-2.wav");
@@ -83,8 +99,22 @@
       loadSound("theme1", "assets/sounds/arrival.wav");
       loadSound("theme2", "assets/sounds/level2.mp3")
       loadSound("theme3", "assets/sounds/level3.mp3")
+      loadSound("main-theme", "assets/sounds/mysterious symphony.wav")
     </script>
     <script src="game.js"></script>
-    <p>The 5th dimension is a game in progress that uses the kaboom.js library. The 5th Dimension is a shooter game. Yo play as the main character is a pilot that works for a secret company that explores and investigates the universe. Right now the first level is available (but it is just a test), if you are interested you can play it.</p>
+    <p>The 5th dimension is a game in progress that uses the kaboom.js library. The 5th Dimension is a shooter game. You play as the main character: a pilot that works for a secret company that explores and investigates the universe. Right now three levels are available, if you are interested you can play it. CONTROLS below.</p>
+    <p>This is the demo version of the game. Some features of this version are:</p>
+    <ul>
+      <li>3 available leves.</li>
+      <li>A story mode.</li>
+      <li>Different types of enemies.</li>
+    </ul>
+    <h3 id="controls"> CONTROLS: </h3>
+    <ul>
+      <li>Up arrow => Move Up</li>
+      <li>Down arrow => Move Down</li>
+      <li>Space => Shoot</li>
+      <li>Enter => Go to the next screen</li>
+    </ul>
   </div>
 </body>

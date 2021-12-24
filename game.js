@@ -26,7 +26,7 @@ function spawner(type){
   }else if(type == "ghost"){
     add([sprite("ghost"), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(140, height()) - 140), "ghost", "enemy", {health: 8,speedX: -150, speedY: wave(-50, 50, time() * 2), t: 0}]);
   }else if(type == "virus"){
-    add([sprite("virus"), layer("game"), rotate(-90), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(100, height()) - 100), "virus", "enemy", {health: 12,speedX: -150, speedY: Math.ceil(wave(-50, 50, time() * 2)), t: 0}]);
+    add([sprite("virus"), layer("game"), rotate(-90), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(100, height()) - 100), "virus", "enemy", {health: 6,speedX: -150, speedY: Math.ceil(wave(-50, 50, time() * 2)), t: 0}]);
   }
 }
 
@@ -44,6 +44,15 @@ function createEffects(type){
         z(1),
       ])
     })
+  }else if(type == "hole"){
+    add([
+      sprite("hole", {anim: "idle"}),
+      pos(width()/2, height()/2),
+      scale(8),
+      origin("center"),
+      opacity(0.4),
+      layer("bg"),
+    ])
   }
 }
 
@@ -106,11 +115,19 @@ function kaboom(p, s){
     destroy(ex);
   })
 }
-
+const m = play("main-theme", {volume: 0.7, loop: true});
+m.pause();
 scene("home", () => {
+  m.play();
+  const logo = add([
+    sprite("logo"),
+    pos(width()/2, height()/3.8),
+    scale(8),
+    origin("center"),
+  ])
   const STORY_MODE = add([
     text("STORY MODE", {size: 20}),
-    pos(width()/2, height()/2),
+    pos(width()/2, height()/1.4),
     origin("center"),
     area(),
     scale(1),
@@ -128,19 +145,23 @@ scene("home", () => {
 
   get("bar-s")[0].onClick(() => {
     go("intro", "levels");
+    m.pause();
   })
 })
 
 scene("intro", (s) => {
+  m.play()
   const intro = "SUDDENLY, YOU OPEN YOUR EYES. YOU ARE IN A CAPSULE. ALL YOU SEE IS BLACK, YOU START TO REMEMBER HOW DID YOU GET HERE YOU WERE IN A WHITE ROOM WITH SCIENTISTS, THEY TOLD YOU THAT YOU WILL GO TO THE 5TH DIMENSION. YOU START TO HEAR ROARINGS AND SIGHS. YOU PREPARE YOUR GUNS AND YOU TURN ON THE CAPSULE TO GET INTO THIS NEW DIMENSION."
   addText(intro, 20);
   onKeyPress("enter", () => {
     go(s);
+    m.pause();
   })
 })
 
 scene("levels", () => {
-  let names = ["1. THE ARRIVAL", "2. THE VOID", "3 THE HOLE"]
+  m.play()
+  let names = ["1. THE ARRIVAL", "2. THE VOID", "3. THE HOLE"]
   for(let i=1; i<=3; i++){
     add([text(names[i-1], {size: 20}),
       pos(width()/2, 40*i == 60 ? 40 : 40*i + 20*i),
@@ -174,9 +195,15 @@ scene("levels", () => {
       b.scale = 1;
     })
     b.onClick(() => {
+      m.stop();
       go("play", b.level)
     })
   })
+  add([
+    text('THIS IS THE DEMO VERSION. MORE LEVELS WILL BE ADDED IN THE FULL VERSION. IF YOU WANT TO FOLLOW THE STORY PLEASE PLAY THE LEVELS IN ORDER', {size: 10, width: width()}),
+    pos(width()/2, height() - 40),
+    origin("center"),
+  ])
   // add([text("BEING CREATED, PLEASE STAND BY", {size: 30, width: width()}), pos(width()/2, height()/2), origin("center"),]);
 })
 
@@ -197,6 +224,8 @@ scene("play", (l) => {
   }else if(l == 3){
     ENEMY_TYPES.push("hand", "eye", "ghost", "virus");
     limit = 20;
+    createEffects("hole");
+    createEffects("lights");
   }
 
   const deathIcon = add([
@@ -338,7 +367,7 @@ scene("play", (l) => {
 })
 
 scene("ending", (idx) => {
-  const ENDINGS = ['THOSE THINGS WERE NOT NORMAL, THEY HAD STRANGE SHAPES AND THEY SEEMED DANGEROUS. WHATEVER THOSE THINGS WERE YOU KNEW THEY ERE NOT FRIENDLY. AFTER A BIT FLOATING IN THE IMMENSE BLACK SPACE, YOU START TO SEE LIGHTS. BEAUTIFUL LIGHTS WITH DIFERENT COLORS. YOU ARE STUNNED BY THE BEAUTY OF THIS PLACE. BUT THEN, MORE MONSTERS STARTTED TO APPEAR.', 'DONT KNOW WHAT PUT HERE '];
+  const ENDINGS = ['THOSE THINGS WERE NOT NORMAL, THEY HAD STRANGE SHAPES AND SEEMED DANGEROUS. WHATEVER THEY WERE, YOU KNEW THEY WERE NOT FRIENDLY. AFTER A LITTLE FLOATING IN THE VAST BLACK SPACE, YOU BEGIN TO SEE LIGHTS. BEAUTIFUL LIGHTS WITH DIFFERENT COLORS. YOU ARE AMAZED BY THE BEAUTY OF THIS PLACE. BUT THEN MORE MONSTERS BEGAN TO APPEAR.', 'THE MONSTERS KEPT COMING, THERE WERE THOUSANDS OF THEM, AS IF THEY WERE PROTECTING SOMETHING. YOU START CLEARING YOUR PATH, BUT THEN YOU FIND OUT WHAT THEY ARE PROTECTING. THE HOLE.', 'YOU APPROACH THE HOLE AND YOU ARE DRAWN BY IT. YOU TRY TO GO BACK BUT THE HOLE KEEPS DRAWING. YOUR WORK WAS USELESS BECAUSE YOU END UP IN THE HOLE ANYWAY. INSIDE IT, THERE WAS SOMETHING LIKE A HIVE WHERE MONSTERS WERE BORN. AND AT THE END OF IT, THERE WERE THOUSANDS OF EGGS PROTECTED BY A GREAT MONSTER.'];
   addText(ENDINGS[idx - 1], 20);
   onKeyPress("enter", () => {
     go("levels");
@@ -346,7 +375,7 @@ scene("ending", (idx) => {
 })
 
 scene("game over", () => {
-  const GAME_OVER_TEXTS = ['THE MONSTERS TOOK ALL THAT WAS IN YOUR SHIP, EVEN DEATH YOUR BODY', 'THEY LEFT YOUR BODY IN THERE. ALONE. IN THE ENDLESS BLACK SPACE', 'THE MONSTERS ATE EVERYTHING IN YOUR CAPSULE. EVEN YOUR DEAD BODY', 'YOU SEE THOSE THINGS CLOSER, THEY KEPT COMING, ALL OF THEM. THEY CAME TO EAT A SNACK'];
+  const GAME_OVER_TEXTS = ['THE MONSTERS TOOK ALL THAT WAS IN YOUR SHIP, EVEN DEATH YOUR BODY', 'THEY LEFT YOUR BODY IN THERE. ALONE. IN THE ENDLESS BLACK SPACE', 'THE MONSTERS ATE EVERYTHING IN YOUR CAPSULE. EVEN YOUR DEAD BODY', 'YOU SEE THOSE THINGS CLOSER, THEY KEPT COMING, ALL OF THEM. THEY CAME TO EAT A SNACK', 'YOU WILL NEVER SEE THE LIGHT AGAIN... NEVER'];
   addText(GAME_OVER_TEXTS[randi(0, GAME_OVER_TEXTS.length)], 20);
   add([
     text("GAME OVER", {size: 30}),
