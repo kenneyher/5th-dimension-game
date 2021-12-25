@@ -9,7 +9,7 @@
 */
 
 const LAYERS = ["bg", "game", "fx", "ui"];
-const LEVELS_MUSIC = ["theme1", "theme2", "theme3"];
+const LEVELS_MUSIC = ["theme1", "theme2", "theme3", 'theme4'];
 
 /*
 |-------------------------------------------------------------------------------------|
@@ -53,6 +53,36 @@ function createEffects(type){
       opacity(0.4),
       layer("bg"),
     ])
+  }else if(type == 'green particles'){
+    loop(0.2, () => {
+      add([
+        rect(5, 5),
+        pos(randi(10, width() - 10), randi(10, height() - 10)),
+        scale(randi(1, 5)),
+        opacity(rand(0.1, 1)),
+        color(226, 255, 147),
+        lifespan(randi(0, 3), {fade: rand(1, 2)}),
+        layer("bg"),
+        z(1),
+      ])
+    })
+  }else if(type == 'asteroids'){
+    loop(2.5, () => {
+      if(chance(0.5)){
+        add([
+          sprite(choose(['rock1', 'rock2'])),
+          pos(width() - 10, randi(150, height() - 150)),
+          scale(randi(5, 10)),
+          opacity(rand(0.1, 0.6)),
+          cleanup(),
+          area(),
+          origin('center'),
+          move(LEFT, randi(50, 300)),
+          layer("bg"),
+          z(1),
+        ])
+      }
+    })
   }
 }
 
@@ -161,8 +191,8 @@ scene("intro", (s) => {
 
 scene("levels", () => {
   m.play()
-  let names = ["1. THE ARRIVAL", "2. THE VOID", "3. THE HOLE"]
-  for(let i=1; i<=3; i++){
+  let names = ["1. THE ARRIVAL", "2. THE VOID", "3. THE HOLE", '4. THE NEST']
+  for(let i=1; i<=4; i++){
     add([text(names[i-1], {size: 20}),
       pos(width()/2, 40*i == 60 ? 40 : 40*i + 20*i),
       origin("center"),
@@ -208,7 +238,7 @@ scene("levels", () => {
 })
 
 scene("play", (l) => {
-  const music = play(LEVELS_MUSIC[l - 1], {loop: true, volume: 0.4});
+  const music = play(LEVELS_MUSIC[l - 1], {loop: true, volume: 0.6});
   layers(LAYERS);
   // debug.log(l);
   const ENEMY_TYPES = [];
@@ -226,6 +256,11 @@ scene("play", (l) => {
     limit = 20;
     createEffects("hole");
     createEffects("lights");
+  }else if(l == 4){
+    ENEMY_TYPES.push('ghost', 'virus', );
+    limit = 30;
+    createEffects('green particles');
+    createEffects('asteroids');
   }
 
   const deathIcon = add([
