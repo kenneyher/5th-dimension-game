@@ -82,12 +82,20 @@
       })
       loadSprite("skull", "assets/sprites/skull.png.png");
       loadSprite("ghost", "assets/sprites/ghostface.png");
-      loadSprite("virus", "assets/sprites/virus.png");
+      loadSprite("virus", "assets/sprites/virus.png", {
+        sliceX: 5,
+        sliceY: 1,
+        anims: {
+          idle: {from: 0, to: 4, loop: true}
+        }
+      });
       loadSprite("rock1", "assets/sprites/rock.png");
       loadSprite("rock2", "assets/sprites/rock2.png");
       loadSprite("g-bullet", "assets/sprites/ghost-bullet.png");
       loadSprite("v-bullet", "assets/sprites/virus-bullet.png");
       loadSprite("logo", "assets/sprites/logo.png");
+      loadSprite("wendigo", "assets/sprites/wendigo.png");
+      loadSprite("w-bullet", "assets/sprites/wendigo-bullet.png");
       
       loadFont("monogram", "assets/sprites/monogram.png", 7, 9, {chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,'});
 

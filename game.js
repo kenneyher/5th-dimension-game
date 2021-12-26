@@ -26,7 +26,9 @@ function spawner(type){
   }else if(type == "ghost"){
     add([sprite("ghost"), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(140, height()) - 140), "ghost", "enemy", {health: 8,speedX: -150, speedY: wave(-50, 50, time() * 2), t: 0}]);
   }else if(type == "virus"){
-    add([sprite("virus"), layer("game"), rotate(-90), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(100, height()) - 100), "virus", "enemy", {health: 6,speedX: -150, speedY: Math.ceil(wave(-50, 50, time() * 2)), t: 0}]);
+    add([sprite("virus", {anim: 'idle'}), layer("game"), rotate(270), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(100, height()) - 100), "virus", "enemy", {health: 6,speedX: -150, speedY: Math.ceil(wave(-50, 50, time() * 2)), t: 0}]);
+  }else if(type == "wendigo"){
+    add([sprite("wendigo"), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(width() - 50, randi(100, height()) - 100), "wendigo", "enemy", {health: 5, speedX: 0, speedY: 70, t: 0}]);
   }
 }
 
@@ -125,6 +127,18 @@ const spawnBullet = (type, p, vel) => {
       cleanup(),
       pos(p),
       move(vel, 260),
+      "e-bullet",
+      layer("fx"),
+    ])
+  }else if(type == 'w'){
+    add([
+      sprite('w-bullet'),
+      scale(3),
+      area({width: 10, height: 8, }),
+      origin('center'),
+      cleanup(),
+      pos(p),
+      move(vel, 600),
       "e-bullet",
       layer("fx"),
     ])
@@ -257,8 +271,8 @@ scene("play", (l) => {
     createEffects("hole");
     createEffects("lights");
   }else if(l == 4){
-    ENEMY_TYPES.push('ghost', 'virus', );
-    limit = 30;
+    ENEMY_TYPES.push('ghost', 'virus', 'wendigo');
+    limit = 15;
     createEffects('green particles');
     createEffects('asteroids');
   }
@@ -266,18 +280,18 @@ scene("play", (l) => {
   const deathIcon = add([
     sprite("skull"),
     scale(2),
-    pos(width() - 100, 25),
+    pos(width() - 160, 25),
     layer('ui'),
     origin("center")
   ])
   const deathLabel = add([
-    text(`${deathCounter}`, {size: 20}),
-    pos({x: deathIcon.pos.x + 40, y: deathIcon.pos.y}),
+    text(`${deathCounter} OF ${limit}`, {size: 20}),
+    pos({x: deathIcon.pos.x + 100, y: deathIcon.pos.y}),
     layer('ui'),
     origin("center"),
   ])
   deathLabel.onUpdate(() => {
-    deathLabel.text = `${deathCounter}`;
+    deathLabel.text = `${deathCounter} OF ${limit}`;
   })
 
   loop(1, () => {
@@ -315,6 +329,20 @@ scene("play", (l) => {
         e.t = 0;
       }
     }
+    if(e.is("wendigo")){
+      if(e.pos.y < 50){
+        e.speedY = 100;
+      }else if(e.pos.y > height() - 50){
+        e.speedY = -100;
+      }
+      e.t += dt();
+      if(e.t > 4.5){
+        spawnBullet('w', e.pos, vec2(-100, 60));
+        spawnBullet('w', e.pos, vec2(-100, -60));
+        spawnBullet('w', e.pos, vec2(-100, 0));
+        wait(0.001, () => e.t = 0);
+      }
+    }
     e.move(e.speedX, e.speedY);
   })
 
@@ -334,7 +362,7 @@ scene("play", (l) => {
   const healthLabel = add([
     sprite("heart", {frame: 0}),
     scale(3),
-    pos(width() - 180, 30),
+    pos(width() - 210, 30),
     origin("center"),
     layer('ui'),
   ])
@@ -402,7 +430,7 @@ scene("play", (l) => {
 })
 
 scene("ending", (idx) => {
-  const ENDINGS = ['THOSE THINGS WERE NOT NORMAL, THEY HAD STRANGE SHAPES AND SEEMED DANGEROUS. WHATEVER THEY WERE, YOU KNEW THEY WERE NOT FRIENDLY. AFTER A LITTLE FLOATING IN THE VAST BLACK SPACE, YOU BEGIN TO SEE LIGHTS. BEAUTIFUL LIGHTS WITH DIFFERENT COLORS. YOU ARE AMAZED BY THE BEAUTY OF THIS PLACE. BUT THEN MORE MONSTERS BEGAN TO APPEAR.', 'THE MONSTERS KEPT COMING, THERE WERE THOUSANDS OF THEM, AS IF THEY WERE PROTECTING SOMETHING. YOU START CLEARING YOUR PATH, BUT THEN YOU FIND OUT WHAT THEY ARE PROTECTING. THE HOLE.', 'YOU APPROACH THE HOLE AND YOU ARE DRAWN BY IT. YOU TRY TO GO BACK BUT THE HOLE KEEPS DRAWING. YOUR WORK WAS USELESS BECAUSE YOU END UP IN THE HOLE ANYWAY. INSIDE IT, THERE WAS SOMETHING LIKE A HIVE WHERE MONSTERS WERE BORN. AND AT THE END OF IT, THERE WERE THOUSANDS OF EGGS PROTECTED BY A GREAT MONSTER.'];
+  const ENDINGS = ['THOSE THINGS WERE NOT NORMAL, THEY HAD STRANGE SHAPES AND SEEMED DANGEROUS. WHATEVER THEY WERE, YOU KNEW THEY WERE NOT FRIENDLY. AFTER A LITTLE FLOATING IN THE VAST BLACK SPACE, YOU BEGIN TO SEE LIGHTS. BEAUTIFUL LIGHTS WITH DIFFERENT COLORS. YOU ARE AMAZED BY THE BEAUTY OF THIS PLACE. BUT THEN MORE MONSTERS BEGAN TO APPEAR.', 'THE MONSTERS KEPT COMING, THERE WERE THOUSANDS OF THEM, AS IF THEY WERE PROTECTING SOMETHING. YOU START CLEARING YOUR PATH, BUT THEN YOU FIND OUT WHAT THEY ARE PROTECTING. THE HOLE.', 'YOU APPROACH THE HOLE AND YOU ARE DRAWN BY IT. YOU TRY TO GO BACK BUT THE HOLE KEEPS DRAWING. YOUR WORK WAS USELESS BECAUSE YOU END UP IN THE HOLE ANYWAY. INSIDE IT, THERE WAS SOMETHING LIKE A HIVE WHERE MONSTERS WERE BORN. AND AT THE END OF IT, THERE WERE THOUSANDS OF EGGS PROTECTED BY A GREAT MONSTER.', 'THOSE THINGS KEPT COMING BUT YOU WERE QUICK ENOUGH TO KILL THEM BEFORE THEY REACHED YOU. YOU WERE APPROACHING THE CENTER OF THE NEST. WHEN YOU GOT THERE, THE BIG MONSTER THAT LOOKED LIKE A SPIDER WITH A SKULL INSTEAD OF A HEAD WAS SCREAMING AT YOU, AND THE CLOSER YOU WERE, THE MORE ANGRY THE MONSTER GETTEN. '];
   addText(ENDINGS[idx - 1], 20);
   onKeyPress("enter", () => {
     go("levels");
