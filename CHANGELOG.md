@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.0.1 OR DEMO VERSION (2021-12-24)
 ### Added
-- A site web where you can try the demo. Link [here](the-5th-dimension-demo-version.surge.sh/index.html)
+- A site web where you can try the demo.
 - All the stuff, basically.
 - More levels.
 - More sounds.

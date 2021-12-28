@@ -9,7 +9,7 @@
 */
 
 const LAYERS = ["bg", "game", "fx", "ui"];
-const LEVELS_MUSIC = ["theme1", "theme2", "theme3", 'theme4'];
+const LEVELS_MUSIC = ["theme1", "theme2", "theme3", 'theme4', 'boss-theme'];
 
 /*
 |-------------------------------------------------------------------------------------|
@@ -18,17 +18,43 @@ const LEVELS_MUSIC = ["theme1", "theme2", "theme3", 'theme4'];
 |-------------------------------------------------------------------------------------|
 */
 
-function spawner(type){
+function floating(){
+  let limit = {max: 0, min: 0};
+  let dir = 1;
+  const SPEED = 10;
+  return {
+    id: "floating",
+    require: ["pos"],
+    add(){
+      limit.max = this.pos.y + 8;
+      limit.min = this.pos.y;
+    },
+    update(){
+      if(this.pos.y > limit.max){
+        dir = -1;
+      }
+      if(this.pos.y < limit.min){
+        dir = 1;
+      }
+      this.move(0, SPEED*dir);
+    }
+  }
+}
+
+function spawner(type, p){
+  p = p ?? {x: width(), y: height()/2}
   if(type == "hand"){
     add([sprite("hand"), layer("game"), scale(3), area({scale: 0.6}), origin("center"), pos(width(), randi(40, height() - 40)), "hand", "enemy", {health: 2,speedX: -180, speedY: 0,}]);
   }else if(type == "eye"){
     add([sprite("eye"), layer("game"), scale(3), area({scale: 0.6}), origin("center"), pos(randi(width()/2, width()), 0), "eye", "enemy", {health: 4, speedX: -150, speedY: 80,}]);
   }else if(type == "ghost"){
-    add([sprite("ghost"), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(140, height()) - 140), "ghost", "enemy", {health: 8,speedX: -150, speedY: wave(-50, 50, time() * 2), t: 0}]);
+    add([sprite("ghost"), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(140, height()  - 140)), "ghost", "enemy", {health: 8,speedX: -150, speedY: wave(-50, 50, time() * 2), t: 0}]);
   }else if(type == "virus"){
     add([sprite("virus", {anim: 'idle'}), layer("game"), rotate(270), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(100, height()) - 100), "virus", "enemy", {health: 6,speedX: -150, speedY: Math.ceil(wave(-50, 50, time() * 2)), t: 0}]);
   }else if(type == "wendigo"){
-    add([sprite("wendigo"), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(width() - 50, randi(100, height()) - 100), "wendigo", "enemy", {health: 5, speedX: 0, speedY: 70, t: 0}]);
+    add([sprite("wendigo"), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(width() - 50, randi(100, height() - 100)), "wendigo", "enemy", {health: 5, speedX: 0, speedY: 70, t: 0}]);
+  }else if(type == 'spider'){
+    add([sprite("skull"), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(p), "spider", "enemy", {health: 4, speedX: -650 , speedY: 0}]);
   }
 }
 
@@ -142,6 +168,18 @@ const spawnBullet = (type, p, vel) => {
       "e-bullet",
       layer("fx"),
     ])
+  }else if(type == 'b'){
+    add([
+      sprite('b-bullet'),
+      scale(3),
+      area({width: 10, height: 8, }),
+      origin('center'),
+      cleanup(),
+      pos(p),
+      move(vel, 600),
+      "e-bullet",
+      layer("fx"),
+    ])
   }
 }
 
@@ -205,8 +243,8 @@ scene("intro", (s) => {
 
 scene("levels", () => {
   m.play()
-  let names = ["1. THE ARRIVAL", "2. THE VOID", "3. THE HOLE", '4. THE NEST']
-  for(let i=1; i<=4; i++){
+  let names = ["1. THE ARRIVAL", "2. THE VOID", "3. THE HOLE", '4. THE NEST', '5. THE LEADER']
+  for(let i=1; i<=5; i++){
     add([text(names[i-1], {size: 20}),
       pos(width()/2, 40*i == 60 ? 40 : 40*i + 20*i),
       origin("center"),
@@ -275,7 +313,63 @@ scene("play", (l) => {
     limit = 15;
     createEffects('green particles');
     createEffects('asteroids');
+  }else if(l == 5){
+    ENEMY_TYPES.push('spider');
+    createEffects('green particles');
+    createEffects('asteroids');
   }
+
+  const boss = add([
+    sprite("boss", {anim: 'idle'}),
+    pos(width() - 100, height()/2),
+    origin('center'),
+    scale(5),
+    layer('game'),
+    health(80),
+    floating(),
+    area({scale: 0.6}),
+    'boss',
+    {
+      t: 0,
+    }
+  ])
+
+  const healthbar = add([
+    rect(width(), 24),
+    pos(0, 0),
+    color(255, 50, 50),
+    fixed(),
+    layer("ui"),
+    {
+      max: get('boss')[0].hp(),
+      set(hp) {
+        this.width = width() * hp / this.max;
+        this.flash = true;
+      },
+    },
+  ])
+
+  healthbar.onUpdate(() => {
+    if (healthbar.flash) {
+      healthbar.color = rgb(255, 255, 255);
+      healthbar.flash = false;
+    } else {
+      healthbar.color = rgb(255, 50, 50);
+    }
+  })
+
+  boss.onDeath(() => {
+    kaboom(boss.pos, 10);
+    destroy(boss);
+    wait(01, () => go('ending', l));
+    music.stop();
+  })
+
+  onCollide('boss', 'bullet', (boss, b) => {
+    boss.hurt();
+    healthbar.set(boss.hp())
+    destroy(b);
+  })
 
   const deathIcon = add([
     sprite("skull"),
@@ -294,14 +388,13 @@ scene("play", (l) => {
     deathLabel.text = `${deathCounter} OF ${limit}`;
   })
 
-  loop(1, () => {
-    spawner(choose(ENEMY_TYPES));
-  })
   onCollide("enemy", "bullet", (e, b) => {
     play(choose(["e-hurt-1","e-hurt-2","e-hurt-3", "e-hurt-4"]), {volume: 0.4, speed: 1.5})
     e.health -= b.dmg;
     destroy(b);
   })
+  
+
   onUpdate("enemy", (e) => {
     if(e.health < 1){
       kaboom(e.pos, 5);
@@ -346,6 +439,22 @@ scene("play", (l) => {
     e.move(e.speedX, e.speedY);
   })
 
+  onUpdate('boss', (b) => {
+    b.t += dt();
+      if(b.t > 2.5){
+        spawnBullet('b', b.pos, vec2(-100, 15));
+        spawnBullet('b', b.pos, vec2(-100, -15));
+        spawnBullet('b', b.pos, vec2(-100, 30));
+        spawnBullet('b', b.pos, vec2(-100, 0));
+        spawnBullet('b', b.pos, vec2(-100, -30));
+        spawnBullet('b', b.pos, vec2(-100, 45));
+        spawnBullet('b', b.pos, vec2(-100, -45));
+        spawnBullet('b', b.pos, vec2(-100, -60));
+        spawnBullet('b', b.pos, vec2(-100, 60));
+        wait(0.001, () => b.t = 0);
+      }
+  })
+
   const ship = add([
     sprite("ship-d"),
     scale(3),
@@ -366,6 +475,12 @@ scene("play", (l) => {
     origin("center"),
     layer('ui'),
   ])
+
+  if(l == 5){
+    deathLabel.destroy();
+    deathIcon.destroy();
+    healthLabel.pos = {x: width() - 50, y: 30}
+  }
 
   onKeyPress("space", () => {
     add([
@@ -415,7 +530,7 @@ scene("play", (l) => {
   })
 
   onUpdate('bullet', (b) => {
-    b.move(350, 0);
+    b.move(500, 0);
     if(b.pos.x > width()){
       destroy(b);
     }
@@ -427,13 +542,25 @@ scene("play", (l) => {
       go("ending", l);
     }
   })
+
+  if(l < 5){
+    loop(1, () => {
+      spawner(choose(ENEMY_TYPES));
+    })
+    boss.destroy();
+    healthbar.destroy();
+  }else {
+    loop(0.85, () => {
+      spawner(choose(ENEMY_TYPES), {x: width() - 20, y: ship.pos.y});
+    })
+  }
 })
 
 scene("ending", (idx) => {
-  const ENDINGS = ['THOSE THINGS WERE NOT NORMAL, THEY HAD STRANGE SHAPES AND SEEMED DANGEROUS. WHATEVER THEY WERE, YOU KNEW THEY WERE NOT FRIENDLY. AFTER A LITTLE FLOATING IN THE VAST BLACK SPACE, YOU BEGIN TO SEE LIGHTS. BEAUTIFUL LIGHTS WITH DIFFERENT COLORS. YOU ARE AMAZED BY THE BEAUTY OF THIS PLACE. BUT THEN MORE MONSTERS BEGAN TO APPEAR.', 'THE MONSTERS KEPT COMING, THERE WERE THOUSANDS OF THEM, AS IF THEY WERE PROTECTING SOMETHING. YOU START CLEARING YOUR PATH, BUT THEN YOU FIND OUT WHAT THEY ARE PROTECTING. THE HOLE.', 'YOU APPROACH THE HOLE AND YOU ARE DRAWN BY IT. YOU TRY TO GO BACK BUT THE HOLE KEEPS DRAWING. YOUR WORK WAS USELESS BECAUSE YOU END UP IN THE HOLE ANYWAY. INSIDE IT, THERE WAS SOMETHING LIKE A HIVE WHERE MONSTERS WERE BORN. AND AT THE END OF IT, THERE WERE THOUSANDS OF EGGS PROTECTED BY A GREAT MONSTER.', 'THOSE THINGS KEPT COMING BUT YOU WERE QUICK ENOUGH TO KILL THEM BEFORE THEY REACHED YOU. YOU WERE APPROACHING THE CENTER OF THE NEST. WHEN YOU GOT THERE, THE BIG MONSTER THAT LOOKED LIKE A SPIDER WITH A SKULL INSTEAD OF A HEAD WAS SCREAMING AT YOU, AND THE CLOSER YOU WERE, THE MORE ANGRY THE MONSTER GETTEN. '];
+  const ENDINGS = ['THOSE THINGS WERE NOT NORMAL, THEY HAD STRANGE SHAPES AND SEEMED DANGEROUS. WHATEVER THEY WERE, YOU KNEW THEY WERE NOT FRIENDLY. AFTER A LITTLE FLOATING IN THE VAST BLACK SPACE, YOU BEGIN TO SEE LIGHTS. BEAUTIFUL LIGHTS WITH DIFFERENT COLORS. YOU ARE AMAZED BY THE BEAUTY OF THIS PLACE. BUT THEN MORE MONSTERS BEGAN TO APPEAR.', 'THE MONSTERS KEPT COMING, THERE WERE THOUSANDS OF THEM, AS IF THEY WERE PROTECTING SOMETHING. YOU START CLEARING YOUR PATH, BUT THEN YOU FIND OUT WHAT THEY ARE PROTECTING. THE HOLE.', 'YOU APPROACH THE HOLE AND YOU ARE DRAWN BY IT. YOU TRY TO GO BACK BUT THE HOLE KEEPS DRAWING. YOUR WORK WAS USELESS BECAUSE YOU END UP IN THE HOLE ANYWAY. INSIDE IT, THERE WAS SOMETHING LIKE A HIVE WHERE MONSTERS WERE BORN. AND AT THE END OF IT, THERE WERE THOUSANDS OF EGGS PROTECTED BY A GREAT MONSTER.', 'THOSE THINGS KEPT COMING BUT YOU WERE QUICK ENOUGH TO KILL THEM BEFORE THEY REACHED YOU. YOU WERE APPROACHING THE CENTER OF THE NEST. WHEN YOU GOT THERE, THE BIG MONSTER THAT LOOKED LIKE A SPIDER WITH A SKULL INSTEAD OF A HEAD WAS SCREAMING AT YOU, AND THE CLOSER YOU WERE, THE MORE ANGRY THE MONSTER GETTEN. ', 'BEFORE THE MONSTER DIE IT SCREAMED, AND THEN ALL THE LITTLE MONSTERS WERE GOING TO YOU. TO KILL YOU BECAUSE YOU KILLED THEIR KING. YOU WANTED TO TURN ON YOUR GUNS BUT YOU DISCOVERED THAT YOUR SHIP RAN OUT OF ENERGY. SO YOU WERE ALONE, WITH NO DEFENSES AND WITH THOUSAND OF ANGRY MONSTERS GOING TO KILL YOU. THAT WAS YOUR END... WHAT A PITY...'];
   addText(ENDINGS[idx - 1], 20);
   onKeyPress("enter", () => {
-    go("levels");
+    go("home");
   })
 })
 
@@ -447,7 +574,7 @@ scene("game over", () => {
     color(RED),
   ])
   onKeyPress("enter", () => {
-    go("levels");
+    go("home");
   })
 })
 

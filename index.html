@@ -40,8 +40,12 @@
       justify-self: flex-start;
       margin: 1rem;
     }
-    h3{
+    h2{
       margin: 1rem;
+    }
+
+    .colorized{
+      color:mediumpurple
     }
   </style>
   <script src="https://unpkg.com/kaboom/dist/kaboom.js"></script>
@@ -89,13 +93,22 @@
           idle: {from: 0, to: 4, loop: true}
         }
       });
+      loadSprite("boss", "assets/sprites/boss.png", {
+        sliceX: 4,
+        sliceY: 1,
+        anims: {
+          idle: {from: 0, to: 3, loop: true, speed: 4.5}
+        }
+      });
       loadSprite("rock1", "assets/sprites/rock.png");
       loadSprite("rock2", "assets/sprites/rock2.png");
       loadSprite("g-bullet", "assets/sprites/ghost-bullet.png");
       loadSprite("v-bullet", "assets/sprites/virus-bullet.png");
       loadSprite("logo", "assets/sprites/logo.png");
+      loadSprite("skull", "assets/sprites/skull.png");
       loadSprite("wendigo", "assets/sprites/wendigo.png");
       loadSprite("w-bullet", "assets/sprites/wendigo-bullet.png");
+      loadSprite("b-bullet", "assets/sprites/boss-bullet.png");
       
       loadFont("monogram", "assets/sprites/monogram.png", 7, 9, {chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,'});
 
@@ -106,26 +119,28 @@
       loadSound("explo", "assets/sounds/explo.wav");
       loadSound("hurt", "assets/sounds/hurt.wav");
       loadSound("laser", "assets/sounds/shoot.wav");
-      loadSound("theme1", "assets/sounds/arrival.wav");
+      loadSound("theme1", "assets/sounds/arrival.mp3");
       loadSound("theme2", "assets/sounds/level2.mp3")
       loadSound("theme3", "assets/sounds/level3.mp3")
       loadSound("main-theme", "assets/sounds/mysterious symphony.wav")
-      loadSound("theme4", "assets/sounds/level4.mp3")
+      loadSound("theme4", "assets/sounds/level4.mp3");
+      loadSound("boss-theme", "assets/sounds/boss-level.mp3");
     </script>
     <script src="game.js"></script>
-    <p>The 5th dimension is a game in progress that uses the kaboom.js library. The 5th Dimension is a shooter game. You play as the main character: a pilot that works for a secret company that explores and investigates the universe. Right now three levels are available, if you are interested you can play it. CONTROLS below.</p>
-    <p>This is the demo version of the game. Some features of this version are:</p>
+    <p>The 5th dimension is a game that uses the kaboom.js library. The 5th Dimension is a shooter game. You play as the main character: a pilot that works for a secret company that explores and investigates the universe. CONTROLS below.</p>
+    <h2 class="colorized">FEATURES:</h2>
     <ul>
-      <li>3 available leves.</li>
+      <li>5 available leves.</li>
       <li>A story mode.</li>
       <li>Different types of enemies.</li>
+      <li>A boss fight</li>
     </ul>
-    <h3 id="controls"> CONTROLS: </h3>
+    <h2 class="colorized"> CONTROLS: </h2>
     <ul>
       <li>Up arrow => Move Up</li>
       <li>Down arrow => Move Down</li>
       <li>Space => Shoot</li>
       <li>Enter => Go to the next screen</li>
-    </ul>
+    </ul> 
   </div>
 </body>
