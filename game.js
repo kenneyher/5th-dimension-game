@@ -44,11 +44,11 @@ function floating(){
 function spawner(type, p){
   p = p ?? {x: width(), y: height()/2}
   if(type == "hand"){
-    add([sprite("hand"), layer("game"), scale(3), area({scale: 0.6}), origin("center"), pos(width(), randi(40, height() - 40)), "hand", "enemy", {health: 2,speedX: -180, speedY: 0,}]);
+    add([sprite("hand", {anim: 'idle'}), layer("game"), scale(3), area({scale: 0.6}), origin("center"), pos(width(), randi(40, height() - 40)), "hand", "enemy", {health: 2,speedX: -180, speedY: 0,}]);
   }else if(type == "eye"){
-    add([sprite("eye"), layer("game"), scale(3), area({scale: 0.6}), origin("center"), pos(randi(width()/2, width()), 0), "eye", "enemy", {health: 4, speedX: -150, speedY: 80,}]);
+    add([sprite("eye", {anim: 'idle'}), layer("game"), scale(3), area({scale: 0.6}), origin("center"), pos(randi(width()/2, width()), 0), "eye", "enemy", {health: 4, speedX: -150, speedY: 80,}]);
   }else if(type == "ghost"){
-    add([sprite("ghost"), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(140, height()  - 140)), "ghost", "enemy", {health: 8,speedX: -150, speedY: wave(-50, 50, time() * 2), t: 0}]);
+    add([sprite("ghost", {anim: 'idle'}), floating(), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(140, height()  - 140)), "ghost", "enemy", {health: 8,speedX: -150, speedY: wave(-50, 50, time() * 2), t: 0}]);
   }else if(type == "virus"){
     add([sprite("virus", {anim: 'idle'}), layer("game"), rotate(270), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(100, height()) - 100), "virus", "enemy", {health: 6,speedX: -150, speedY: Math.ceil(wave(-50, 50, time() * 2)), t: 0}]);
   }else if(type == "wendigo"){
@@ -290,6 +290,22 @@ scene("levels", () => {
 })
 
 scene("play", (l) => {
+  add([
+    rect(width(), 10),
+    pos(width()/2, 0),
+    origin('center'),
+    area(),
+    opacity(0),
+    'barrier'
+  ])
+  add([
+    rect(width(), 10),
+    pos(width()/2, height()),
+    origin('center'),
+    area(),
+    opacity(0),
+    'barrier'
+  ])
   const music = play(LEVELS_MUSIC[l - 1], {loop: true, volume: 0.6});
   layers(LAYERS);
   // debug.log(l);
@@ -541,6 +557,8 @@ scene("play", (l) => {
       music.stop();
       go("ending", l);
     }
+    ship.pushOut(get('barrier')[0]);
+    ship.pushOut(get('barrier')[1]);
   })
 
   if(l < 5){

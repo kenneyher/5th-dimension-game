@@ -64,8 +64,20 @@
         crisp: true,
       });
       loadSprite("ship-d", "assets/sprites/ship-default.png");
-      loadSprite("hand", "assets/sprites/hand.png");
-      loadSprite("eye", "assets/sprites/eye.png");
+      loadSprite("hand", "assets/sprites/hand-remade.png", {
+        sliceX: 2,
+        sliceY: 1,
+        anims: {
+          idle: {from: 0, to: 1, loop: true, speed: 3},
+        }
+      });
+      loadSprite("eye", "assets/sprites/eye-remade.png", {
+        sliceX: 4,
+        sliceY: 1,
+        anims: {
+          idle: {from: 0, to: 3, loop: true, speed: 5}
+        }
+      });
       loadSprite("explosion", "assets/sprites/explosion.png", {
         sliceX: 8,
         sliceY: 1,
@@ -84,9 +96,15 @@
         sliceX: 5,
         sliceY: 1,
       })
-      loadSprite("skull", "assets/sprites/skull.png.png");
-      loadSprite("ghost", "assets/sprites/ghostface.png");
-      loadSprite("virus", "assets/sprites/virus.png", {
+      loadSprite("skull-icon", "assets/sprites/skull.png.png");
+      loadSprite("ghost", "assets/sprites/ghost-remade.png", {
+        sliceX: 2,
+        sliceY: 1,
+        anims: {
+          idle: {from: 0, to: 1, loop: true, speed: 3},
+        }
+      });
+      loadSprite("virus", "assets/sprites/virus-remade.png", {
         sliceX: 5,
         sliceY: 1,
         anims: {
