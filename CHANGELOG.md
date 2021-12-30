@@ -4,9 +4,19 @@ All notable changes will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.0.1 OR DEMO VERSION (2021-12-24)
+## 0.2 - TINY UPDATE (2021-12-30)
+### Fixed
+- Now the player cannot go out of the limits of the screen
+### Changed
+- New sprites for the enemies: *Eye, Hand, and Ghost*.
+
+## 0.0.1 - FIRST VERSION (2021-12-28)
 ### Added
-- A site web where you can try the demo.
+- Two more levels
+- A boss fight
+
+## DEMO VERSION (2021-12-24)
+### Added
 - All the stuff, basically.
 - More levels.
 - More sounds.
