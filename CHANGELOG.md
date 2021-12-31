@@ -5,10 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## 0.2 - TINY UPDATE (2021-12-30)
+### Added
+- Added a new sprite bullet
 ### Fixed
-- Now the player cannot go out of the limits of the screen
+- Now the player cannot go out of the limits of the screen.
+- The skull icon in the death counter now has the correct sprite, instead of showing the sprite of the enemy that appears in the Boss Level.
 ### Changed
-- New sprites for the enemies: *Eye, Hand, and Ghost*.
+- Improve the sprites.
 
 ## 0.0.1 - FIRST VERSION (2021-12-28)
 ### Added

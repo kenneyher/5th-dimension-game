@@ -44,17 +44,17 @@ function floating(){
 function spawner(type, p){
   p = p ?? {x: width(), y: height()/2}
   if(type == "hand"){
-    add([sprite("hand", {anim: 'idle'}), layer("game"), scale(3), area({scale: 0.6}), origin("center"), pos(width(), randi(40, height() - 40)), "hand", "enemy", {health: 2,speedX: -180, speedY: 0,}]);
+    add([sprite("hand", {anim: 'idle'}), layer("game"), scale(2), area({scale: 0.6}), origin("center"), pos(width(), randi(40, height() - 40)), "hand", "enemy", {health: 2,speedX: -180, speedY: 0,}]);
   }else if(type == "eye"){
-    add([sprite("eye", {anim: 'idle'}), layer("game"), scale(3), area({scale: 0.6}), origin("center"), pos(randi(width()/2, width()), 0), "eye", "enemy", {health: 4, speedX: -150, speedY: 80,}]);
+    add([sprite("eye", {anim: 'idle'}), layer("game"), scale(2), area({scale: 0.6}), origin("center"), pos(randi(width()/2, width()), 0), "eye", "enemy", {health: 4, speedX: -150, speedY: 80,}]);
   }else if(type == "ghost"){
-    add([sprite("ghost", {anim: 'idle'}), floating(), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(140, height()  - 140)), "ghost", "enemy", {health: 8,speedX: -150, speedY: wave(-50, 50, time() * 2), t: 0}]);
+    add([sprite("ghost", {anim: 'idle'}), floating(), layer("game"), scale(2), area({scale: 0.8}), origin("center"), pos(width(), randi(140, height()  - 140)), "ghost", "enemy", {health: 8,speedX: -150, speedY: wave(-50, 50, time() * 2), t: 0}]);
   }else if(type == "virus"){
-    add([sprite("virus", {anim: 'idle'}), layer("game"), rotate(270), scale(3), area({scale: 0.8}), origin("center"), pos(width(), randi(100, height()) - 100), "virus", "enemy", {health: 6,speedX: -150, speedY: Math.ceil(wave(-50, 50, time() * 2)), t: 0}]);
+    add([sprite("virus", {anim: 'idle'}), layer("game"), rotate(270), scale(2), area({scale: 0.8}), origin("center"), pos(width(), randi(100, height()) - 100), "virus", "enemy", {health: 6,speedX: -150, speedY: Math.ceil(wave(-50, 50, time() * 2)), t: 0}]);
   }else if(type == "wendigo"){
-    add([sprite("wendigo"), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(width() - 50, randi(100, height() - 100)), "wendigo", "enemy", {health: 5, speedX: 0, speedY: 70, t: 0}]);
+    add([sprite("wendigo", {anim: 'idle'}), layer("game"), scale(2), area({scale: 0.8}), origin("center"), pos(width() - 50, randi(100, height() - 100)), "wendigo", "enemy", {health: 4, speedX: 0, speedY: 90, t: 0}]);
   }else if(type == 'spider'){
-    add([sprite("skull"), layer("game"), scale(3), area({scale: 0.8}), origin("center"), pos(p), "spider", "enemy", {health: 4, speedX: -650 , speedY: 0}]);
+    add([sprite("skull"), layer("game"), scale(2), area({scale: 0.8}), origin("center"), pos(p), "spider", "enemy", {health: 4, speedX: -650 , speedY: 0}]);
   }
 }
 
@@ -388,7 +388,7 @@ scene("play", (l) => {
   })
 
   const deathIcon = add([
-    sprite("skull"),
+    sprite("skull-icon"),
     scale(2),
     pos(width() - 160, 25),
     layer('ui'),
@@ -445,9 +445,9 @@ scene("play", (l) => {
         e.speedY = -100;
       }
       e.t += dt();
-      if(e.t > 4.5){
-        spawnBullet('w', e.pos, vec2(-100, 60));
-        spawnBullet('w', e.pos, vec2(-100, -60));
+      if(e.t > 3){
+        spawnBullet('w', e.pos, vec2(-100, 30));
+        spawnBullet('w', e.pos, vec2(-100, -30));
         spawnBullet('w', e.pos, vec2(-100, 0));
         wait(0.001, () => e.t = 0);
       }
@@ -472,8 +472,8 @@ scene("play", (l) => {
   })
 
   const ship = add([
-    sprite("ship-d"),
-    scale(3),
+    sprite("ship-d", {anim: 'idle'}),
+    scale(2),
     area({scale: 0.6}),
     origin("center"),
     health(4),
@@ -499,9 +499,10 @@ scene("play", (l) => {
   }
 
   onKeyPress("space", () => {
-    add([
-      rect(8, 8),
+    add([ 
+      sprite('bullet', {anim: 'idle'}),
       area(),
+      scale(2),
       origin("center"),
       pos(ship.pos),
       "bullet",
@@ -553,7 +554,7 @@ scene("play", (l) => {
   })
 
   onUpdate(() => {
-    if(deathCounter > limit){
+    if(deathCounter >= limit){
       music.stop();
       go("ending", l);
     }

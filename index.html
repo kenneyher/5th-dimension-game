@@ -63,7 +63,13 @@
         font: "monogram",
         crisp: true,
       });
-      loadSprite("ship-d", "assets/sprites/ship-default.png");
+      loadSprite("ship-d", "assets/sprites/spaceship-remade.png", {
+        sliceX: 4,
+        sliceY: 1,
+        anims: {
+          idle: {from: 0, to: 3, loop: true,}
+        }
+      });
       loadSprite("hand", "assets/sprites/hand-remade.png", {
         sliceX: 2,
         sliceY: 1,
@@ -111,11 +117,25 @@
           idle: {from: 0, to: 4, loop: true}
         }
       });
+      loadSprite("wendigo", "assets/sprites/wendigo-remade.png", {
+        sliceX: 6.02,
+        sliceY: 1,
+        anims: {
+          idle: {from: 0, to: 5, loop: true}
+        }
+      });
       loadSprite("boss", "assets/sprites/boss.png", {
         sliceX: 4,
         sliceY: 1,
         anims: {
           idle: {from: 0, to: 3, loop: true, speed: 4.5}
+        }
+      });
+      loadSprite("bullet", "assets/sprites/bullet.png", {
+        sliceX: 5,
+        sliceY: 1,
+        anims: {
+          idle: {from: 0, to: 4, loop: true,}
         }
       });
       loadSprite("rock1", "assets/sprites/rock.png");
@@ -124,7 +144,6 @@
       loadSprite("v-bullet", "assets/sprites/virus-bullet.png");
       loadSprite("logo", "assets/sprites/logo.png");
       loadSprite("skull", "assets/sprites/skull.png");
-      loadSprite("wendigo", "assets/sprites/wendigo.png");
       loadSprite("w-bullet", "assets/sprites/wendigo-bullet.png");
       loadSprite("b-bullet", "assets/sprites/boss-bullet.png");
       
