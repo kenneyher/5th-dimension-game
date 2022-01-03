@@ -6,9 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.2 - TINY UPDATE (2021-12-30)
 ### Added
-- Added a new sprite bullet
+- Added a new sprite for the bullets.
 ### Fixed
-- Now the player cannot go out of the limits of the screen.
+- Now the player can't go out of the limits of the screen.
 - The skull icon in the death counter now has the correct sprite, instead of showing the sprite of the enemy that appears in the Boss Level.
 ### Changed
 - Improve the sprites.

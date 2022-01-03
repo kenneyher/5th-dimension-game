@@ -48,9 +48,9 @@ function spawner(type, p){
   }else if(type == "eye"){
     add([sprite("eye", {anim: 'idle'}), layer("game"), scale(2), area({scale: 0.6}), origin("center"), pos(randi(width()/2, width()), 0), "eye", "enemy", {health: 4, speedX: -150, speedY: 80,}]);
   }else if(type == "ghost"){
-    add([sprite("ghost", {anim: 'idle'}), floating(), layer("game"), scale(2), area({scale: 0.8}), origin("center"), pos(width(), randi(140, height()  - 140)), "ghost", "enemy", {health: 8,speedX: -150, speedY: wave(-50, 50, time() * 2), t: 0}]);
+    add([sprite("ghost", {anim: 'idle', flipX: true,}), floating(), opacity(0.3), layer("game"), scale(2), area({scale: 0.8}), origin("center"), pos(width(), randi(140, height()  - 140)), "ghost", "enemy", {health: 8,speedX: -150, speedY: wave(-50, 50, time() * 2), t: 0}]);
   }else if(type == "virus"){
-    add([sprite("virus", {anim: 'idle'}), layer("game"), rotate(270), scale(2), area({scale: 0.8}), origin("center"), pos(width(), randi(100, height()) - 100), "virus", "enemy", {health: 6,speedX: -150, speedY: Math.ceil(wave(-50, 50, time() * 2)), t: 0}]);
+    add([sprite("virus", {anim: 'idle'}), layer("game"), scale(2), area({scale: 0.8}), origin("center"), pos(width(), randi(100, height()) - 100), "virus", "enemy", {health: 6,speedX: -150, speedY: Math.ceil(wave(-50, 50, time() * 2)), t: 0}]);
   }else if(type == "wendigo"){
     add([sprite("wendigo", {anim: 'idle'}), layer("game"), scale(2), area({scale: 0.8}), origin("center"), pos(width() - 50, randi(100, height() - 100)), "wendigo", "enemy", {health: 4, speedX: 0, speedY: 90, t: 0}]);
   }else if(type == 'spider'){
@@ -579,7 +579,7 @@ scene("ending", (idx) => {
   const ENDINGS = ['THOSE THINGS WERE NOT NORMAL, THEY HAD STRANGE SHAPES AND SEEMED DANGEROUS. WHATEVER THEY WERE, YOU KNEW THEY WERE NOT FRIENDLY. AFTER A LITTLE FLOATING IN THE VAST BLACK SPACE, YOU BEGIN TO SEE LIGHTS. BEAUTIFUL LIGHTS WITH DIFFERENT COLORS. YOU ARE AMAZED BY THE BEAUTY OF THIS PLACE. BUT THEN MORE MONSTERS BEGAN TO APPEAR.', 'THE MONSTERS KEPT COMING, THERE WERE THOUSANDS OF THEM, AS IF THEY WERE PROTECTING SOMETHING. YOU START CLEARING YOUR PATH, BUT THEN YOU FIND OUT WHAT THEY ARE PROTECTING. THE HOLE.', 'YOU APPROACH THE HOLE AND YOU ARE DRAWN BY IT. YOU TRY TO GO BACK BUT THE HOLE KEEPS DRAWING. YOUR WORK WAS USELESS BECAUSE YOU END UP IN THE HOLE ANYWAY. INSIDE IT, THERE WAS SOMETHING LIKE A HIVE WHERE MONSTERS WERE BORN. AND AT THE END OF IT, THERE WERE THOUSANDS OF EGGS PROTECTED BY A GREAT MONSTER.', 'THOSE THINGS KEPT COMING BUT YOU WERE QUICK ENOUGH TO KILL THEM BEFORE THEY REACHED YOU. YOU WERE APPROACHING THE CENTER OF THE NEST. WHEN YOU GOT THERE, THE BIG MONSTER THAT LOOKED LIKE A SPIDER WITH A SKULL INSTEAD OF A HEAD WAS SCREAMING AT YOU, AND THE CLOSER YOU WERE, THE MORE ANGRY THE MONSTER GETTEN. ', 'BEFORE THE MONSTER DIE IT SCREAMED, AND THEN ALL THE LITTLE MONSTERS WERE GOING TO YOU. TO KILL YOU BECAUSE YOU KILLED THEIR KING. YOU WANTED TO TURN ON YOUR GUNS BUT YOU DISCOVERED THAT YOUR SHIP RAN OUT OF ENERGY. SO YOU WERE ALONE, WITH NO DEFENSES AND WITH THOUSAND OF ANGRY MONSTERS GOING TO KILL YOU. THAT WAS YOUR END... WHAT A PITY...'];
   addText(ENDINGS[idx - 1], 20);
   onKeyPress("enter", () => {
-    go("home");
+    go("levels");
   })
 })
 
