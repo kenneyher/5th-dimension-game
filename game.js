@@ -55,6 +55,8 @@ function spawner(type, p){
     add([sprite("wendigo", {anim: 'idle'}), layer("game"), scale(2), area({scale: 0.8}), origin("center"), pos(width() - 50, randi(100, height() - 100)), "wendigo", "enemy", {health: 4, speedX: 0, speedY: 90, t: 0}]);
   }else if(type == 'spider'){
     add([sprite("skull"), layer("game"), scale(2), area({scale: 0.8}), origin("center"), pos(p), "spider", "enemy", {health: 4, speedX: -650 , speedY: 0}]);
+  }else if(type == 'mv'){
+    add([sprite("mother-virus", {anim: 'idle'}), layer("game"), scale(2), area({scale: 0.8}), origin("center"), pos(width() - 50, randi(100, height() - 100)), "mv", "enemy", {health: 6, speedX: -100, speedY: 90, t: 0}]);
   }
 }
 
@@ -180,6 +182,18 @@ const spawnBullet = (type, p, vel) => {
       "e-bullet",
       layer("fx"),
     ])
+  }else if(type == 'mv'){
+    add([
+      sprite('mv-bullet', {anim: 'idle'}),
+      scale(3),
+      area({width: 10, height: 8, }),
+      origin('center'),
+      cleanup(),
+      pos(p),
+      move(vel, 200),
+      "e-bullet",
+      layer("fx"),
+    ])
   }
 }
 
@@ -226,7 +240,7 @@ scene("home", () => {
   })
 
   get("bar-s")[0].onClick(() => {
-    go("intro", "levels");
+    go("intro", "chapters");
     m.pause();
   })
 })
@@ -235,15 +249,58 @@ scene("intro", (s) => {
   m.play()
   const intro = "SUDDENLY, YOU OPEN YOUR EYES. YOU ARE IN A CAPSULE. ALL YOU SEE IS BLACK, YOU START TO REMEMBER HOW DID YOU GET HERE YOU WERE IN A WHITE ROOM WITH SCIENTISTS, THEY TOLD YOU THAT YOU WILL GO TO THE 5TH DIMENSION. YOU START TO HEAR ROARINGS AND SIGHS. YOU PREPARE YOUR GUNS AND YOU TURN ON THE CAPSULE TO GET INTO THIS NEW DIMENSION."
   addText(intro, 20);
-  onKeyPress("enter", () => {
+  onKeyPress(['enter', 'space'], () => {
+    go(s);
+    m.pause();
+  })
+  onClick(() => {
     go(s);
     m.pause();
   })
 })
 
-scene("levels", () => {
+scene('chapters', () => {
+  m.play();
+  const chp1 = add([
+    sprite('chapter1'),
+    area(),
+    scale(3),
+    pos(width()/4, height()/2),
+    origin('center')
+  ])
+  const chp2 = add([
+    sprite('chapter2'),
+    area(),
+    scale(3),
+    pos(width()/1.5, height()/2),
+    origin('center')
+  ])
+  chp1.onHover(() => {
+    chp1.scale = 3.1;
+  }, () => {
+    chp1.scale = 3;
+  })
+  chp1.onClick(() => {
+    go('levels', 1);
+  })
+  chp2.onHover(() => {
+    chp2.scale = 3.1;
+  }, () => {
+    chp2.scale = 3;
+  })
+  chp2.onClick(() => {
+    go('levels', 2);
+  })
+})
+
+scene("levels", (chp) => {
   m.play()
-  let names = ["1. THE ARRIVAL", "2. THE VOID", "3. THE HOLE", '4. THE NEST', '5. THE LEADER']
+  let names;
+  if(chp == 1) {
+    names = ["1. THE ARRIVAL", "2. THE VOID", "3. THE HOLE", '4. THE NEST', '5. THE LEADER'];
+  }else if(chp == 2){
+    names = ["6. A NEW WORLD"];
+  }
   for(let i=1; i<=5; i++){
     add([text(names[i-1], {size: 20}),
       pos(width()/2, 40*i == 60 ? 40 : 40*i + 20*i),
@@ -278,18 +335,18 @@ scene("levels", () => {
     })
     b.onClick(() => {
       m.stop();
-      go("play", b.level)
+      go("play", b.level, chp)
     })
   })
   add([
-    text('THIS IS THE DEMO VERSION. MORE LEVELS WILL BE ADDED IN THE FULL VERSION. IF YOU WANT TO FOLLOW THE STORY PLEASE PLAY THE LEVELS IN ORDER', {size: 10, width: width()}),
+    text('IF YOU WANT TO FOLLOW THE STORY PLEASE PLAY THE LEVELS IN ORDER', {size: 10, width: width()}),
     pos(width()/2, height() - 40),
     origin("center"),
   ])
   // add([text("BEING CREATED, PLEASE STAND BY", {size: 30, width: width()}), pos(width()/2, height()/2), origin("center"),]);
 })
 
-scene("play", (l) => {
+scene("play", (l, c) => {
   add([
     rect(width(), 10),
     pos(width()/2, 0),
@@ -312,27 +369,34 @@ scene("play", (l) => {
   const ENEMY_TYPES = [];
   let limit;
   let deathCounter = 0;
-  if(l == 1){
-    ENEMY_TYPES.push("hand", "eye");
-    limit = 20;
-  }else if(l == 2){
-    ENEMY_TYPES.push("hand", "eye", "ghost");
-    limit = 25;
-    createEffects("lights");
-  }else if(l == 3){
-    ENEMY_TYPES.push("hand", "eye", "ghost", "virus");
-    limit = 20;
-    createEffects("hole");
-    createEffects("lights");
-  }else if(l == 4){
-    ENEMY_TYPES.push('ghost', 'virus', 'wendigo');
-    limit = 15;
-    createEffects('green particles');
-    createEffects('asteroids');
-  }else if(l == 5){
-    ENEMY_TYPES.push('spider');
-    createEffects('green particles');
-    createEffects('asteroids');
+  if(c == 1) {
+    if(l == 1){
+      ENEMY_TYPES.push("hand", "eye");
+      limit = 20;
+    }else if(l == 2){
+      ENEMY_TYPES.push("hand", "eye", "ghost");
+      limit = 25;
+      createEffects("lights");
+    }else if(l == 3){
+      ENEMY_TYPES.push("hand", "eye", "ghost", "virus");
+      limit = 20;
+      createEffects("hole");
+      createEffects("lights");
+    }else if(l == 4){
+      ENEMY_TYPES.push('ghost', 'virus', 'wendigo');
+      limit = 15;
+      createEffects('green particles');
+      createEffects('asteroids');
+    }else if(l == 5){
+      ENEMY_TYPES.push('spider');
+      createEffects('green particles');
+      createEffects('asteroids');
+    }
+  }else if(c == 2){
+    if(l == 1){
+      ENEMY_TYPES.push("virus", "mv");
+      limit = 15;
+    }
   }
 
   const boss = add([
@@ -377,7 +441,7 @@ scene("play", (l) => {
   boss.onDeath(() => {
     kaboom(boss.pos, 10);
     destroy(boss);
-    wait(01, () => go('ending', l));
+    wait(1, () => go('ending', l));
     music.stop();
   })
 
@@ -395,14 +459,12 @@ scene("play", (l) => {
     origin("center")
   ])
   const deathLabel = add([
-    text(`${deathCounter} OF ${limit}`, {size: 20}),
-    pos({x: deathIcon.pos.x + 100, y: deathIcon.pos.y}),
+    text("HELLO", {size: 20}),
+    pos({x: width() - 40, y: 25}),
     layer('ui'),
     origin("center"),
-  ])
-  deathLabel.onUpdate(() => {
-    deathLabel.text = `${deathCounter} OF ${limit}`;
-  })
+  ]);
+  
 
   onCollide("enemy", "bullet", (e, b) => {
     play(choose(["e-hurt-1","e-hurt-2","e-hurt-3", "e-hurt-4"]), {volume: 0.4, speed: 1.5})
@@ -452,6 +514,22 @@ scene("play", (l) => {
         wait(0.001, () => e.t = 0);
       }
     }
+    if(e.is("mv")){
+      if(e.pos.y > height() - 100){
+        e.speedY = -90;
+      } 
+      if(e.pos.y < 100){
+        e.speedY = 90;
+    }
+      e.t += dt();
+      if(e.t > 3){
+        spawnBullet('mv', e.pos, vec2(-100, 60));
+        spawnBullet('mv', e.pos, vec2(-100, 30));
+        spawnBullet('mv', e.pos, vec2(-100, -60));
+        spawnBullet('mv', e.pos, vec2(-100, -30));
+        wait(0.001, () => e.t = 0);
+      }
+    }
     e.move(e.speedX, e.speedY);
   })
 
@@ -472,7 +550,7 @@ scene("play", (l) => {
   })
 
   const ship = add([
-    sprite("ship-d", {anim: 'idle'}),
+    sprite(c == 1 ? 'ship-d' : 'ship2', {anim: 'idle'}),
     scale(2),
     area({scale: 0.6}),
     origin("center"),
@@ -484,6 +562,11 @@ scene("play", (l) => {
     }
   ])
 
+  ship.onUpdate(() => {
+    ship.pushOut(get('barrier')[0]);
+    ship.pushOut(get('barrier')[1]);
+  })
+
   const healthLabel = add([
     sprite("heart", {frame: 0}),
     scale(3),
@@ -492,11 +575,11 @@ scene("play", (l) => {
     layer('ui'),
   ])
 
-  if(l == 5){
-    deathLabel.destroy();
-    deathIcon.destroy();
-    healthLabel.pos = {x: width() - 50, y: 30}
-  }
+  // if(l == 5){
+  //   deathLabel.destroy();
+  //   deathIcon.destroy();
+  //   healthLabel.pos = {x: width() - 50, y: 30}
+  // }
 
   onKeyPress("space", () => {
     add([ 
@@ -521,14 +604,14 @@ scene("play", (l) => {
     kaboom(ship.pos, 5);
     ship.destroy();
     healthLabel.frame = 4;
-    wait(1, () => go("game over"));
+    wait(1, () => go("game over", c));
   })
 
   ship.onCollide("enemy", (e) => {
     kaboom(ship.pos, 5);
     ship.destroy();
     healthLabel.frame = 4;
-    wait(1, () => go("game over"))
+    wait(1, () => go("game over", c))
     music.stop();
   })
   ship.onCollide("e-bullet", (b) => {
@@ -539,10 +622,10 @@ scene("play", (l) => {
     shake(25);
   })
 
-  onKeyDown('up', () => {
+  onKeyDown(['up', 'w'], () => {
     ship.move(0, -160)
   })
-  onKeyDown('down', () => {
+  onKeyDown(['down', 's'], () => {
     ship.move(0, 160)
   })
 
@@ -556,10 +639,8 @@ scene("play", (l) => {
   onUpdate(() => {
     if(deathCounter >= limit){
       music.stop();
-      go("ending", l);
+      wait(1, () => go("ending", l, c));
     }
-    ship.pushOut(get('barrier')[0]);
-    ship.pushOut(get('barrier')[1]);
   })
 
   if(l < 5){
@@ -575,7 +656,7 @@ scene("play", (l) => {
   }
 })
 
-scene("ending", (idx) => {
+scene("ending", (idx, c) => {
   const ENDINGS = ['THOSE THINGS WERE NOT NORMAL, THEY HAD STRANGE SHAPES AND SEEMED DANGEROUS. WHATEVER THEY WERE, YOU KNEW THEY WERE NOT FRIENDLY. AFTER A LITTLE FLOATING IN THE VAST BLACK SPACE, YOU BEGIN TO SEE LIGHTS. BEAUTIFUL LIGHTS WITH DIFFERENT COLORS. YOU ARE AMAZED BY THE BEAUTY OF THIS PLACE. BUT THEN MORE MONSTERS BEGAN TO APPEAR.', 'THE MONSTERS KEPT COMING, THERE WERE THOUSANDS OF THEM, AS IF THEY WERE PROTECTING SOMETHING. YOU START CLEARING YOUR PATH, BUT THEN YOU FIND OUT WHAT THEY ARE PROTECTING. THE HOLE.', 'YOU APPROACH THE HOLE AND YOU ARE DRAWN BY IT. YOU TRY TO GO BACK BUT THE HOLE KEEPS DRAWING. YOUR WORK WAS USELESS BECAUSE YOU END UP IN THE HOLE ANYWAY. INSIDE IT, THERE WAS SOMETHING LIKE A HIVE WHERE MONSTERS WERE BORN. AND AT THE END OF IT, THERE WERE THOUSANDS OF EGGS PROTECTED BY A GREAT MONSTER.', 'THOSE THINGS KEPT COMING BUT YOU WERE QUICK ENOUGH TO KILL THEM BEFORE THEY REACHED YOU. YOU WERE APPROACHING THE CENTER OF THE NEST. WHEN YOU GOT THERE, THE BIG MONSTER THAT LOOKED LIKE A SPIDER WITH A SKULL INSTEAD OF A HEAD WAS SCREAMING AT YOU, AND THE CLOSER YOU WERE, THE MORE ANGRY THE MONSTER GETTEN. ', 'BEFORE THE MONSTER DIE IT SCREAMED, AND THEN ALL THE LITTLE MONSTERS WERE GOING TO YOU. TO KILL YOU BECAUSE YOU KILLED THEIR KING. YOU WANTED TO TURN ON YOUR GUNS BUT YOU DISCOVERED THAT YOUR SHIP RAN OUT OF ENERGY. SO YOU WERE ALONE, WITH NO DEFENSES AND WITH THOUSAND OF ANGRY MONSTERS GOING TO KILL YOU. THAT WAS YOUR END... WHAT A PITY...'];
   addText(ENDINGS[idx - 1], 20);
   onKeyPress("enter", () => {
@@ -583,7 +664,7 @@ scene("ending", (idx) => {
   })
 })
 
-scene("game over", () => {
+scene("game over", (c) => {
   const GAME_OVER_TEXTS = ['THE MONSTERS TOOK ALL THAT WAS IN YOUR SHIP, EVEN DEATH YOUR BODY', 'THEY LEFT YOUR BODY IN THERE. ALONE. IN THE ENDLESS BLACK SPACE', 'THE MONSTERS ATE EVERYTHING IN YOUR CAPSULE. EVEN YOUR DEAD BODY', 'YOU SEE THOSE THINGS CLOSER, THEY KEPT COMING, ALL OF THEM. THEY CAME TO EAT A SNACK', 'YOU WILL NEVER SEE THE LIGHT AGAIN... NEVER'];
   addText(GAME_OVER_TEXTS[randi(0, GAME_OVER_TEXTS.length)], 20);
   add([
@@ -593,7 +674,7 @@ scene("game over", () => {
     color(RED),
   ])
   onKeyPress("enter", () => {
-    go("home");
+    go("levels", c);
   })
 })
 

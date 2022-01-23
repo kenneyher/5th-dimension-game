@@ -63,11 +63,18 @@
         font: "monogram",
         crisp: true,
       });
-      loadSprite("ship-d", "assets/sprites/spaceship-remade.png", {
-        sliceX: 4,
+      loadSprite("ship-d", "assets/sprites/spaceship-remade-v2.png", {
+        sliceX: 5,
         sliceY: 1,
         anims: {
-          idle: {from: 0, to: 3, loop: true,}
+          idle: {from: 0, to: 4, loop: true,}
+        }
+      });
+      loadSprite("ship2", "assets/sprites/firefly-spaceship.png", {
+        sliceX: 5,
+        sliceY: 1,
+        anims: {
+          idle: {from: 0, to: 4, loop: true,}
         }
       });
       loadSprite("hand", "assets/sprites/hand-remade.png", {
@@ -138,6 +145,22 @@
           idle: {from: 0, to: 4, loop: true,}
         }
       });
+      loadSprite("mother-virus", "assets/sprites/mother-virus.png", {
+        sliceX: 12,
+        sliceY: 1,
+        anims: {
+          idle: {from: 0, to: 11, loop: true,}
+        }
+      });
+      loadSprite("mv-bullet", "assets/sprites/mother-virus-bullet.png", {
+        sliceX: 10,
+        sliceY: 1,
+        anims: {
+          idle: {from: 0, to: 9, loop: true,}
+        }
+      });
+      loadSprite('chapter1', "assets/sprites/chp1.png")
+      loadSprite('chapter2', "assets/sprites/chp2.png")
       loadSprite("rock1", "assets/sprites/rock.png");
       loadSprite("rock2", "assets/sprites/rock2.png");
       loadSprite("g-bullet", "assets/sprites/ghost-bullet.png");
